@@ -1,0 +1,2631 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rifa Eletrônica - Sistema Completo com PIX Dinâmico</title>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <style>
+        /* RESET E CONFIGURAÇÕES GERAIS */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* HEADER E CONFIGURAÇÕES */
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: linear-gradient(135deg, #2a2a2a 0%, #1f1f1f 100%);
+            border-radius: 15px;
+            border: 2px solid #ff8c00;
+            box-shadow: 0 5px 20px rgba(255, 140, 0, 0.3);
+        }
+
+        .header h1 {
+            color: #ff8c00;
+            font-size: 1.8em;
+            text-shadow: 0 0 15px rgba(255, 140, 0, 0.5);
+            margin-bottom: 10px;
+        }
+
+        .item-config {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 15px auto;
+            max-width: 800px;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .config-group {
+            flex: 1;
+            min-width: 250px;
+            max-width: 400px;
+        }
+
+        .config-label {
+            display: block;
+            color: #ff8c00;
+            margin-bottom: 6px;
+            font-weight: 600;
+            font-size: 0.9em;
+            text-align: center;
+        }
+
+        .item-name-input,
+        .draw-date-input,
+        input[type="text"],
+        input[type="number"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px 15px;
+            background: #2a2a2a;
+            border: 2px solid #444;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #ff8c00;
+            box-shadow: 0 0 15px rgba(255, 140, 0, 0.3);
+        }
+
+        .item-name-input.editable,
+        .draw-date-input.editable,
+        .observations-input.editable {
+            border-color: #ff8c00;
+            background: #333;
+        }
+
+        .draw-date-input {
+            font-family: monospace;
+            text-align: center;
+        }
+
+        /* BOTÕES */
+        .logout-btn {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            padding: 10px 20px;
+            background: rgba(255, 0, 0, 0.8);
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 0, 0, 1);
+            transform: scale(1.05);
+        }
+
+        .btn {
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ff8c00 0%, #ff6600 100%);
+            color: #fff;
+            box-shadow: 0 3px 10px rgba(255, 140, 0, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 140, 0, 0.6);
+        }
+
+        .btn-secondary {
+            background: #444;
+            color: #fff;
+        }
+
+        .btn-secondary:hover {
+            background: #555;
+        }
+
+        .btn-pix {
+            background: linear-gradient(135deg, #00cc88 0%, #009966 100%);
+            color: #fff;
+        }
+
+        .btn-pix:hover {
+            background: linear-gradient(135deg, #00ffaa 0%, #00cc88 100%);
+        }
+
+        /* ESTATÍSTICAS */
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            background: #2a2a2a;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            min-width: 80px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+            flex: 1;
+            max-width: 120px;
+        }
+
+        .stat-card.available {
+            background: #666 !important;
+            border: 2px solid #888;
+        }
+
+        .stat-card.selected {
+            background: linear-gradient(135deg, #ff8c00 0%, #ff6600 100%) !important;
+            border: 2px solid #ff8c00;
+        }
+
+        .stat-card.reserved {
+            background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%) !important;
+            border: 2px solid #ff0000;
+        }
+
+        .stat-card h3 {
+            color: #fff;
+            font-size: 1.8em;
+            margin-bottom: 5px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .stat-card p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+
+        /* BOTÕES DE CONTROLE */
+        .control-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #0088cc 0%, #006699 100%);
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .control-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 136, 204, 0.4);
+        }
+
+        .control-btn.pix-btn {
+            background: linear-gradient(135deg, #00cc88 0%, #009966 100%);
+        }
+
+        .control-btn.pix-btn:hover {
+            box-shadow: 0 5px 15px rgba(0, 204, 136, 0.4);
+        }
+
+        .control-btn.admin-btn {
+            background: linear-gradient(135deg, #ff8c00 0%, #ff6600 100%);
+        }
+
+        .control-btn.admin-btn:hover {
+            box-shadow: 0 5px 15px rgba(255, 140, 0, 0.4);
+        }
+
+        /* NÚMEROS DA RIFA */
+        .numbers-grid {
+            display: grid;
+            grid-template-columns: repeat(17, 1fr);
+            gap: 6px;
+            max-width: 1000px;
+            margin: 0 auto 20px;
+            padding: 15px;
+            background: rgba(42, 42, 42, 0.3);
+            border-radius: 12px;
+            border: 2px solid #444;
+        }
+
+        .number-card {
+            aspect-ratio: 1;
+            background: #2a2a2a;
+            border: 1px solid #444;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+            padding: 2px;
+            min-height: 52px;
+            min-width: 52px;
+        }
+
+        .number-card:hover:not(.reserved):not(.selected) {
+            transform: translateY(-2px);
+            border-color: #ff8c00;
+            box-shadow: 0 3px 10px rgba(255, 140, 0, 0.4);
+        }
+
+        .number-card.selected {
+            background: linear-gradient(135deg, #ff8c00 0%, #ff6600 100%);
+            border-color: #ff8c00;
+            box-shadow: 0 3px 10px rgba(255, 140, 0, 0.4);
+            transform: scale(1.02);
+        }
+
+        .number-card.reserved {
+            background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
+            border-color: #ff0000;
+            cursor: not-allowed;
+            box-shadow: 0 2px 6px rgba(255, 0, 0, 0.3);
+        }
+
+        .number {
+            font-size: 1.56em;
+            font-weight: bold;
+            color: #fff;
+            text-align: center;
+            line-height: 1;
+            padding: 2px;
+            word-break: break-word;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            width: 100%;
+        }
+
+        .owner-name {
+            font-size: 0.78em;
+            color: #fff;
+            margin-top: 2px;
+            text-align: center;
+            padding: 0 2px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            line-height: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 100%;
+        }
+
+        /* SEÇÃO PIX */
+        .pix-section {
+            max-width: 800px;
+            margin: 30px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #2a2a2a 0%, #1f1f1f 100%);
+            border-radius: 15px;
+            border: 2px solid #00cc88;
+            box-shadow: 0 5px 20px rgba(0, 204, 136, 0.3);
+        }
+
+        .pix-title {
+            color: #00cc88;
+            font-size: 1.5em;
+            text-align: center;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px rgba(0, 204, 136, 0.5);
+        }
+
+        .pix-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        @media (min-width: 768px) {
+            .pix-content {
+                flex-direction: row;
+                align-items: flex-start;
+            }
+        }
+
+        .pix-image-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            min-height: 280px;
+        }
+
+        .qr-code-container {
+            width: 250px;
+            height: 250px;
+            background: white;
+            border-radius: 10px;
+            border: 2px solid #00cc88;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        #pixQRCode {
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+        .pix-info {
+            flex: 2;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .pix-code-container {
+            background: #1f1f1f;
+            border: 2px solid #00cc88;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+
+        .pix-code-label {
+            color: #00cc88;
+            font-size: 0.9em;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .pix-code {
+            background: #2a2a2a;
+            padding: 12px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            color: #00ffaa;
+            text-align: center;
+            word-break: break-all;
+            border: 1px solid #444;
+            margin-bottom: 10px;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1.4;
+            white-space: pre-wrap;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .copy-pix-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #00cc88 0%, #009966 100%);
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .copy-pix-btn:hover {
+            background: linear-gradient(135deg, #00ffaa 0%, #00cc88 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 204, 136, 0.4);
+        }
+
+        .copy-pix-btn.copied {
+            background: linear-gradient(135deg, #0088cc 0%, #006699 100%);
+        }
+
+        .pix-instructions {
+            background: #1f1f1f;
+            border: 2px solid #ff8c00;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 10px;
+        }
+
+        .pix-instructions h4 {
+            color: #ff8c00;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .pix-instructions ol {
+            padding-left: 20px;
+            margin-bottom: 10px;
+        }
+
+        .pix-instructions li {
+            margin-bottom: 8px;
+            color: #ccc;
+            line-height: 1.4;
+        }
+
+        .pix-instructions .warning {
+            color: #ff8c00;
+            font-weight: bold;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #444;
+            font-size: 0.9em;
+        }
+
+        /* CONFIGURAÇÃO PIX */
+        .pix-config-section {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #1f2d1f 0%, #1f1f2d 100%);
+            border-radius: 15px;
+            border: 2px solid #0088cc;
+            box-shadow: 0 5px 20px rgba(0, 136, 204, 0.3);
+            display: none;
+        }
+
+        .pix-config-title {
+            color: #0088cc;
+            font-size: 1.4em;
+            text-align: center;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px rgba(0, 136, 204, 0.5);
+        }
+
+        /* LISTA DE COMPRADORES */
+        .buyers-section {
+            max-width: 800px;
+            margin: 0 auto 20px;
+            padding: 15px;
+        }
+
+        .buyers-container {
+            background: #2a2a2a;
+            border-radius: 15px;
+            border: 2px solid #ff8c00;
+            padding: 20px;
+            box-shadow: 0 5px 20px rgba(255, 140, 0, 0.3);
+        }
+
+        .buyers-title {
+            color: #ff8c00;
+            font-size: 1.4em;
+            text-align: center;
+            margin-bottom: 15px;
+            text-shadow: 0 0 10px rgba(255, 140, 0, 0.5);
+        }
+
+        .buyers-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 10px;
+        }
+
+        .buyer-card {
+            background: #1f1f1f;
+            border: 2px solid #444;
+            border-radius: 10px;
+            padding: 12px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .buyer-card:hover {
+            border-color: #ff8c00;
+            transform: translateX(3px);
+            box-shadow: 0 3px 10px rgba(255, 140, 0, 0.3);
+        }
+
+        .buyer-info {
+            flex: 1;
+        }
+
+        .buyer-name {
+            color: #fff;
+            font-weight: 600;
+            font-size: 1em;
+            margin-bottom: 3px;
+        }
+
+        .buyer-numbers {
+            color: #aaa;
+            font-size: 0.8em;
+        }
+
+        .buyer-count {
+            background: linear-gradient(135deg, #ff8c00 0%, #ff6600 100%);
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-weight: bold;
+            font-size: 0.9em;
+            min-width: 35px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(255, 140, 0, 0.4);
+        }
+
+        .empty-buyers,
+        .admin-empty {
+            text-align: center;
+            color: #666;
+            padding: 30px;
+            font-size: 1em;
+        }
+
+        .empty-buyers-icon,
+        .admin-empty-icon {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            opacity: 0.5;
+        }
+
+        /* PAINEL ADMINISTRATIVO */
+        .admin-section {
+            max-width: 800px;
+            margin: 0 auto 20px;
+            padding: 15px;
+            display: none;
+        }
+
+        .admin-container {
+            background: linear-gradient(135deg, #2d1f1f 0%, #1f1f2d 100%);
+            border-radius: 15px;
+            border: 3px solid #ff0000;
+            padding: 20px;
+            box-shadow: 0 5px 20px rgba(255, 0, 0, 0.4);
+        }
+
+        .admin-title {
+            color: #ff0000;
+            font-size: 1.4em;
+            text-align: center;
+            margin-bottom: 8px;
+            text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+        }
+
+        .admin-subtitle {
+            color: #aaa;
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 0.8em;
+        }
+
+        .admin-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 10px;
+        }
+
+        .admin-buyer-card {
+            background: #1f1f1f;
+            border: 2px solid #444;
+            border-radius: 10px;
+            padding: 12px 15px;
+            transition: all 0.3s ease;
+        }
+
+        .admin-buyer-card:hover {
+            border-color: #ff0000;
+            box-shadow: 0 3px 10px rgba(255, 0, 0, 0.3);
+        }
+
+        .admin-buyer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .admin-buyer-name {
+            color: #fff;
+            font-weight: 600;
+            font-size: 1em;
+        }
+
+        .admin-buyer-count {
+            background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
+            color: #fff;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 0.8em;
+            box-shadow: 0 2px 6px rgba(255, 0, 0, 0.4);
+        }
+
+        .admin-numbers-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+
+        .admin-number-badge {
+            background: #2a2a2a;
+            border: 2px solid #ff8c00;
+            color: #ff8c00;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 0.8em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .admin-number-badge:hover {
+            background: #ff0000;
+            border-color: #ff0000;
+            color: #fff;
+            transform: scale(1.05);
+        }
+
+        .admin-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-admin-delete {
+            flex: 1;
+            padding: 8px;
+            background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
+            border: none;
+            border-radius: 6px;
+            color: #fff;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            font-size: 0.75em;
+            box-shadow: 0 2px 8px rgba(255, 0, 0, 0.4);
+        }
+
+        .btn-admin-delete:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 0, 0, 0.6);
+        }
+
+        /* RODAPÉ */
+        .footer {
+            margin-top: auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #2a2a2a 0%, #1f1f1f 100%);
+            border-radius: 15px;
+            border: 2px solid #444;
+            margin-top: 30px;
+            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .footer-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .observations-container {
+            margin-top: 15px;
+        }
+
+        .observations-label {
+            display: block;
+            color: #ff8c00;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+
+        .observations-input {
+            min-height: 80px;
+            resize: vertical;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .footer-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #444;
+            color: #aaa;
+            font-size: 0.85em;
+        }
+
+        .footer-info div {
+            text-align: center;
+            flex: 1;
+        }
+
+        .footer-info .center {
+            font-weight: 600;
+            color: #ff8c00;
+        }
+
+        /* MODAIS */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #1f1f1f;
+            padding: 30px;
+            border-radius: 15px;
+            border: 2px solid #ff8c00;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 15px 40px rgba(255, 140, 0, 0.5);
+            animation: slideUp 0.3s ease;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-content h2 {
+            color: #ff8c00;
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 1.5em;
+        }
+
+        .selected-numbers {
+            background: #2a2a2a;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            text-align: center;
+            max-height: 100px;
+            overflow-y: auto;
+        }
+
+        .selected-numbers span {
+            display: inline-block;
+            background: #ff8c00;
+            color: #fff;
+            padding: 6px 12px;
+            margin: 3px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            color: #ff8c00;
+            margin-bottom: 6px;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        /* NOTIFICAÇÃO */
+        .notification {
+            position: fixed;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #ff8c00 0%, #ff6600 100%);
+            color: #fff;
+            padding: 12px 25px;
+            border-radius: 8px;
+            box-shadow: 0 8px 25px rgba(255, 140, 0, 0.5);
+            display: none;
+            z-index: 2000;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translate(-50%, -80px);
+                opacity: 0;
+            }
+            to {
+                transform: translate(-50%, 0);
+                opacity: 1;
+            }
+        }
+
+        .notification.active {
+            display: block;
+        }
+
+        /* CONFIRM MODAL */
+        .confirm-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .confirm-modal.active {
+            display: flex;
+        }
+
+        .confirm-modal-content {
+            background: #1f1f1f;
+            padding: 30px;
+            border-radius: 15px;
+            border: 3px solid #ff0000;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 15px 40px rgba(255, 0, 0, 0.6);
+            text-align: center;
+        }
+
+        .confirm-modal-title {
+            color: #ff0000;
+            font-size: 1.3em;
+            margin-bottom: 15px;
+        }
+
+        .confirm-modal-text {
+            color: #aaa;
+            margin-bottom: 20px;
+            line-height: 1.5;
+            font-size: 0.9em;
+        }
+
+        .confirm-modal-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* RESPONSIVIDADE */
+        @media (max-width: 1024px) {
+            .numbers-grid {
+                grid-template-columns: repeat(12, 1fr);
+                gap: 5px;
+                max-width: 900px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.5em;
+            }
+
+            .numbers-grid {
+                grid-template-columns: repeat(8, 1fr) !important;
+                gap: 4px;
+            }
+
+            .stat-card {
+                padding: 10px;
+                min-width: 70px;
+            }
+
+            .stat-card h3 {
+                font-size: 1.5em;
+            }
+
+            .buyers-list,
+            .admin-list {
+                grid-template-columns: 1fr;
+            }
+
+            .item-config {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .config-group {
+                width: 100%;
+                max-width: 100%;
+            }
+
+            .control-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .control-btn {
+                width: 100%;
+                max-width: 300px;
+            }
+
+            .footer-info {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+
+            .footer-info div {
+                margin-bottom: 5px;
+            }
+
+            #pixQRCode,
+            .qr-code-container {
+                width: 200px;
+                height: 200px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+
+            .header {
+                padding: 15px;
+                margin-bottom: 15px;
+            }
+
+            .stats {
+                gap: 10px;
+            }
+
+            .stat-card {
+                padding: 8px;
+                min-width: 60px;
+            }
+
+            .stat-card h3 {
+                font-size: 1.3em;
+            }
+
+            .stat-card p {
+                font-size: 0.7em;
+            }
+
+            .numbers-grid {
+                grid-template-columns: repeat(6, 1fr) !important;
+                gap: 3px;
+            }
+
+            .observations-input {
+                min-height: 60px;
+                padding: 12px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .numbers-grid {
+                grid-template-columns: repeat(4, 1fr) !important;
+                gap: 2px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <button class="logout-btn" onclick="logout()">Sair</button>
+
+        <div class="notification" id="notification"></div>
+
+        <div class="header">
+            <h1>🎟️ AÇÃO ENTRE AMIGOS</h1>
+           	<img src="../liquidificado.jpg" width="200" height="300">
+<div class="item-config">
+		<div class="config-group">
+                    <label class="config-label">Nome do objeto da rifa:</label>
+                    <input type="text" 
+                           class="item-name-input" 
+                           id="itemName" 
+                           placeholder="Digite o nome do objeto da rifa..." 
+                           maxlength="100">
+                </div>
+                <div class="config-group">
+                    <label class="config-label">Final do 1.o Prêmio da Federal do dia:</label>
+                    <input type="text" 
+                           class="draw-date-input" 
+                           id="drawDate" 
+                           placeholder="DD/MM/AAAA" 
+                           maxlength="10">
+                </div>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card available">
+                <h3 id="availableCount">100</h3>
+                <p>Disponíveis</p>
+            </div>
+            <div class="stat-card selected">
+                <h3 id="selectedCount">0</h3>
+                <p>Selecionados</p>
+            </div>
+            <div class="stat-card reserved">
+                <h3 id="reservedCount">0</h3>
+                <p>Reservados</p>
+            </div>
+        </div>
+
+        <!-- BOTÕES DE CONTROLE -->
+        <div class="control-buttons">
+            <button class="control-btn pix-btn" onclick="openPixConfig()">
+                ⚙️ Configurar PIX
+            </button>
+            <button class="control-btn" onclick="openReservationModal()">
+                📋 Ver Números Selecionados
+            </button>
+            <button class="control-btn admin-btn" onclick="toggleAdminSection()">
+                🔒 Painel Admin
+            </button>
+            <button class="control-btn pix-btn" onclick="generatePixForSelectedNumbers()">
+                💰 Gerar PIX Agora
+            </button>
+        </div>
+
+        <!-- SEÇÃO CONFIGURAÇÃO PIX -->
+        <div class="pix-config-section" id="pixConfigSection">
+            <h2 class="pix-config-title">⚙️ Configuração do PIX Dinâmico</h2>
+            
+            <div class="form-group">
+                <label for="pixKey">Chave PIX:</label>
+                <input type="text" 
+                       id="pixKey" 
+                       placeholder="Digite sua chave PIX (CPF, telefone, email ou chave aleatória)"
+                       maxlength="100">
+            </div>
+            
+            <div class="form-group">
+                <label for="merchantName">Nome do Recebedor:</label>
+                <input type="text" 
+                       id="merchantName" 
+                       placeholder="Nome que aparecerá no pagamento"
+                       maxlength="25">
+            </div>
+            
+            <div class="form-group">
+                <label for="merchantCity">Cidade do Recebedor:</label>
+                <input type="text" 
+                       id="merchantCity" 
+                       placeholder="Cidade"
+                       maxlength="15">
+            </div>
+            
+            <div class="form-group">
+                <label for="pricePerNumber">Valor por Número (R$):</label>
+                <input type="number" 
+                       id="pricePerNumber" 
+                       placeholder="10.00"
+                       step="0.01"
+                       min="1"
+                       value="10.00">
+            </div>
+            
+            <div class="form-group">
+                <label for="pixKeyType">Tipo de Chave PIX:</label>
+                <select id="pixKeyType">
+                    <option value="cpf">CPF</option>
+                    <option value="cnpj">CNPJ</option>
+                    <option value="phone">Telefone</option>
+                    <option value="email">E-mail</option>
+                    <option value="random">Chave Aleatória</option>
+                </select>
+            </div>
+            
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" onclick="testPixCode()">
+                    🔍 Testar PIX
+                </button>
+                <button class="btn btn-primary" onclick="savePixConfig()">
+                    💾 Salvar Configuração
+                </button>
+            </div>
+            
+            <!-- Preview do código PIX gerado -->
+            <div class="pix-code-container" style="margin-top: 20px; display: none;" id="pixPreview">
+                <div class="pix-code-label">Pré-visualização do Código PIX:</div>
+                <div class="pix-code" id="generatedPixCode">...</div>
+                <button class="copy-pix-btn" onclick="copyGeneratedPix()">
+                    📋 Copiar Código PIX
+                </button>
+            </div>
+        </div>
+
+        <!-- PAINEL ADMINISTRATIVO -->
+        <div class="admin-section" id="adminSection">
+            <div class="admin-container">
+                <h2 class="admin-title">🔒 Painel do Administrador</h2>
+                <p class="admin-subtitle">Clique em um número para cancelá-lo individualmente ou use o botão para cancelar todos os números de um comprador</p>
+                <div class="admin-list" id="adminList">
+                    <div class="admin-empty">
+                        <div class="admin-empty-icon">🎫</div>
+                        <p>Nenhuma reserva para gerenciar</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CARTELA DE NÚMEROS -->
+        <div class="numbers-grid" id="numbersGrid"></div>
+
+        <!-- SEÇÃO PIX DINÂMICO -->
+        <div class="pix-section">
+            <h2 class="pix-title">💰 Pagamento via PIX</h2>
+            
+            <div class="pix-content">
+                <div class="pix-image-container">
+                    <div class="qr-code-container">
+                        <canvas id="pixQRCode"></canvas>
+                    </div>
+                    <p style="color: #aaa; font-size: 0.8em; text-align: center;">
+                        Escaneie o QR Code com seu app bancário
+                    </p>
+                    <div style="color: #ff8c00; font-weight: bold; margin-top: 10px; text-align: center;">
+                        Valor Total: R$ <span id="totalAmount">0.00</span>
+                    </div>
+                </div>
+                
+                <div class="pix-info">
+                    <div class="pix-code-container">
+                        <div class="pix-code-label">Código PIX Copia e Cola:</div>
+                        <div class="pix-code" id="pixCode">
+                            Selecione os números da rifa e clique em "Gerar PIX"
+                        </div>
+                        <button class="copy-pix-btn" id="copyPixBtn" onclick="copyPixCode()">
+                            📋 Copiar Código PIX
+                        </button>
+                    </div>
+                    
+                    <div class="pix-instructions">
+                        <h4>📝 Instruções para pagamento:</h4>
+                        <ol>
+                            <li>Selecione os números desejados na cartela acima</li>
+                            <li>Clique em "Gerar PIX Agora" ou "Confirmar Reserva"</li>
+                            <li>Copie o código PIX acima ou escaneie o QR Code</li>
+                            <li>Realize o pagamento no seu aplicativo bancário</li>
+                            <li>Envie o comprovante para o WhatsApp informado</li>
+                        </ol>
+                        <div class="warning">
+                            ⚠️ Sua reserva será confirmada apenas após o envio do comprovante!
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- LISTA DE COMPRADORES -->
+        <div class="buyers-section">
+            <div class="buyers-container">
+                <h2 class="buyers-title">👥 Compradores</h2>
+                <div class="buyers-list" id="buyersList">
+                    <div class="empty-buyers">
+                        <div class="empty-buyers-icon">🎫</div>
+                        <p>Nenhum número reservado ainda</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RODAPÉ -->
+        <div class="footer">
+            <div class="footer-content">
+                <div class="observations-container">
+                    <label class="observations-label">Observações:</label>
+                    <textarea class="observations-input" 
+                              id="observations" 
+                              placeholder="Digite observações importantes sobre a rifa (regras, informações de contato, etc.)..."
+                              maxlength="500"></textarea>
+                </div>
+                <div class="footer-info">
+                    <div class="left">Sistema de Rifa Eletrônica</div>
+                    <div class="center">🎯 Boa sorte a todos! 🎯</div>
+                    <div class="right">Total: 100 números</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL DE CONFIRMAÇÃO DE RESERVA -->
+        <div class="modal" id="confirmModal">
+            <div class="modal-content">
+                <h2>📋 Confirmar Reserva</h2>
+                <div class="selected-numbers" id="selectedNumbersDisplay"></div>
+                
+                <div class="form-group">
+                    <label for="userName">Seu Nome Completo:</label>
+                    <input type="text" id="userName" placeholder="Digite seu nome completo" required>
+                </div>
+                
+                <div style="background: #2a2a2a; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                    <div style="color: #00cc88; font-weight: bold; margin-bottom: 5px;">
+                        Valor Total: R$ <span id="modalTotalAmount">0.00</span>
+                    </div>
+                    <div style="color: #aaa; font-size: 0.9em;">
+                        Números selecionados: <span id="modalNumbersCount">0</span>
+                    </div>
+                </div>
+                
+                <div class="modal-buttons">
+                    <button class="btn btn-secondary" onclick="closeModal()">
+                        Cancelar
+                    </button>
+                    <button class="btn btn-pix" onclick="generatePixFromModal()">
+                        💰 Gerar PIX
+                    </button>
+                    <button class="btn btn-primary" onclick="confirmReservation()">
+                        Confirmar Reserva
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL DE CONFIGURAÇÃO PIX -->
+        <div class="modal" id="pixConfigModal">
+            <div class="modal-content">
+                <h2>⚙️ Configuração do PIX</h2>
+                
+                <div class="form-group">
+                    <label for="modalPixKey">Chave PIX:</label>
+                    <input type="text" 
+                           id="modalPixKey" 
+                           placeholder="Digite sua chave PIX"
+                           maxlength="100">
+                </div>
+                
+                <div class="form-group">
+                    <label for="modalMerchantName">Nome do Recebedor:</label>
+                    <input type="text" 
+                           id="modalMerchantName" 
+                           placeholder="Seu nome ou nome da loja"
+                           maxlength="25">
+                </div>
+                
+                <div class="form-group">
+                    <label for="modalMerchantCity">Cidade:</label>
+                    <input type="text" 
+                           id="modalMerchantCity" 
+                           placeholder="Sua cidade"
+                           maxlength="15">
+                </div>
+                
+                <div class="form-group">
+                    <label for="modalPricePerNumber">Valor por Número (R$):</label>
+                    <input type="number" 
+                           id="modalPricePerNumber" 
+                           placeholder="10.00"
+                           step="0.01"
+                           min="1"
+                           value="10.00">
+                </div>
+                
+                <div class="form-group">
+                    <label for="modalPixKeyType">Tipo de Chave:</label>
+                    <select id="modalPixKeyType">
+                        <option value="cpf">CPF</option>
+                        <option value="cnpj">CNPJ</option>
+                        <option value="phone">Telefone</option>
+                        <option value="email">E-mail</option>
+                        <option value="random">Chave Aleatória</option>
+                    </select>
+                </div>
+                
+                <div class="modal-buttons">
+                    <button class="btn btn-secondary" onclick="closePixConfigModal()">
+                        Cancelar
+                    </button>
+                    <button class="btn btn-primary" onclick="savePixConfigFromModal()">
+                        💾 Salvar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL DE CONFIRMAÇÃO DE CANCELAMENTO -->
+        <div class="confirm-modal" id="confirmCancelModal">
+            <div class="confirm-modal-content">
+                <h2 class="confirm-modal-title">⚠️ Confirmar Cancelamento</h2>
+                <div class="confirm-modal-text" id="confirmCancelText"></div>
+                <div class="confirm-modal-buttons">
+                    <button class="btn btn-secondary" onclick="closeConfirmModal()">Não, manter</button>
+                    <button class="btn btn-primary" style="background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);" onclick="executeCancel()">Sim, cancelar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getDatabase, ref, set, onValue, get, remove } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+
+        // Configuração do Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyC3Klr3vaXQmpvA0r5f4SGL3-8qqkvt5Z0",
+            authDomain: "rifa-a3126.firebaseapp.com",
+            databaseURL: "https://rifa-a3126-default-rtdb.firebaseio.com",
+            projectId: "rifa-a3126",
+            storageBucket: "rifa-a3126.firebasestorage.app",
+            messagingSenderId: "777277903544",
+            appId: "1:777277903544:web:34903dc33eae3ec98dda4d"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const database = getDatabase(app);
+
+        // Variáveis globais
+        let selectedNumbers = new Set();
+        let reservedNumbers = {};
+        let currentUser = null;
+        let isAdmin = false;
+        let pixConfig = {
+            pixKey: '',
+            merchantName: 'RIFA ELETRONICA',
+            merchantCity: 'SAO PAULO',
+            pricePerNumber: 10.00,
+            keyType: 'cpf'
+        };
+        let cancelAction = null;
+
+        const ADMIN_EMAIL = 'mariano@gmail.com';
+
+        // Inicializar sistema quando usuário estiver autenticado
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                window.location.href = 'index.html';
+            } else {
+                currentUser = user;
+                isAdmin = user.email === ADMIN_EMAIL;
+
+                if (isAdmin) {
+                    document.getElementById('itemName').classList.add('editable');
+                    document.getElementById('drawDate').classList.add('editable');
+                    document.getElementById('observations').classList.add('editable');
+                    document.getElementById('pixConfigSection').style.display = 'block';
+                }
+
+                initializeRaffle();
+                setupEventListeners();
+                loadPixConfig();
+            }
+        });
+
+        // Configurar event listeners
+        function setupEventListeners() {
+            // Configurar campos editáveis
+            setupEditableField('itemName');
+            setupEditableField('drawDate');
+            setupEditableTextarea('observations');
+
+            // Configurar máscara para data
+            setupDateMask();
+
+            // Carregar dados salvos
+            loadSavedData();
+            
+            // Inicializar canvas do QR Code
+            const canvas = document.getElementById('pixQRCode');
+            canvas.width = 230;
+            canvas.height = 230;
+            drawInitialQRCode();
+        }
+
+        // Configurar campo de texto editável
+        function setupEditableField(fieldId) {
+            const field = document.getElementById(fieldId);
+
+            field.addEventListener('focus', function() {
+                if (!isAdmin) {
+                    this.blur();
+                }
+            });
+
+            field.addEventListener('blur', function() {
+                if (isAdmin) {
+                    saveFieldToFirebase(fieldId, this.value.trim());
+                }
+            });
+
+            field.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && isAdmin) {
+                    this.blur();
+                    saveFieldToFirebase(fieldId, this.value.trim());
+                }
+            });
+        }
+
+        // Configurar textarea editável
+        function setupEditableTextarea(fieldId) {
+            const field = document.getElementById(fieldId);
+
+            field.addEventListener('focus', function() {
+                if (!isAdmin) {
+                    this.blur();
+                }
+            });
+
+            field.addEventListener('blur', function() {
+                if (isAdmin) {
+                    saveFieldToFirebase(fieldId, this.value.trim());
+                }
+            });
+        }
+
+        // Configurar máscara para data (DD/MM/AAAA)
+        function setupDateMask() {
+            const dateInput = document.getElementById('drawDate');
+
+            dateInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+
+                if (value.length > 2 && value.length <= 4) {
+                    value = value.substring(0, 2) + '/' + value.substring(2);
+                } else if (value.length > 4) {
+                    value = value.substring(0, 2) + '/' + value.substring(2, 4) + '/' + value.substring(4, 8);
+                }
+
+                e.target.value = value;
+            });
+
+            dateInput.addEventListener('blur', function() {
+                if (this.value && isAdmin) {
+                    validateAndSaveDate(this);
+                }
+            });
+        }
+
+        // Validar e salvar data
+        function validateAndSaveDate(dateInput) {
+            const dateRegex = /^\d{2}\/\d{2}\/\d{4}$/;
+
+            if (!dateRegex.test(dateInput.value)) {
+                showNotification('Formato de data inválido! Use DD/MM/AAAA');
+                dateInput.focus();
+                return;
+            }
+
+            const parts = dateInput.value.split('/');
+            const day = parseInt(parts[0], 10);
+            const month = parseInt(parts[1], 10) - 1;
+            const year = parseInt(parts[2], 10);
+
+            const date = new Date(year, month, day);
+
+            if (date.getFullYear() !== year || date.getMonth() !== month || date.getDate() !== day) {
+                showNotification('Data inválida! Verifique o dia, mês e ano.');
+                dateInput.focus();
+                return;
+            }
+
+            saveFieldToFirebase('drawDate', dateInput.value.trim());
+        }
+
+        // Salvar campo no Firebase
+        async function saveFieldToFirebase(fieldId, value) {
+            try {
+                const fieldRef = ref(database, `config/${fieldId}`);
+                await set(fieldRef, value);
+                showNotification(`✅ ${getFieldLabel(fieldId)} atualizado com sucesso!`);
+            } catch (error) {
+                console.error(`Erro ao salvar ${fieldId}:`, error);
+                showNotification(`❌ Erro ao salvar ${getFieldLabel(fieldId)}: ${error.message}`);
+            }
+        }
+
+        // Obter label amigável para o campo
+        function getFieldLabel(fieldId) {
+            const labels = {
+                'itemName': 'Nome do item',
+                'drawDate': 'Data do sorteio',
+                'observations': 'Observações',
+                'pixKey': 'Chave PIX'
+            };
+            return labels[fieldId] || fieldId;
+        }
+
+        // Carregar dados salvos do Firebase
+        function loadSavedData() {
+            const configRef = ref(database, 'config');
+            onValue(configRef, (snapshot) => {
+                const config = snapshot.val() || {};
+
+                if (config.itemName) {
+                    document.getElementById('itemName').value = config.itemName;
+                }
+
+                if (config.drawDate) {
+                    document.getElementById('drawDate').value = config.drawDate;
+                }
+
+                if (config.observations) {
+                    document.getElementById('observations').value = config.observations;
+                }
+            });
+        }
+
+        // Carregar configuração do PIX
+        function loadPixConfig() {
+            const pixConfigRef = ref(database, 'config/pixConfig');
+            onValue(pixConfigRef, (snapshot) => {
+                const savedConfig = snapshot.val();
+                if (savedConfig) {
+                    pixConfig = {
+                        pixKey: savedConfig.pixKey || '',
+                        merchantName: savedConfig.merchantName || 'RIFA ELETRONICA',
+                        merchantCity: savedConfig.merchantCity || 'SAO PAULO',
+                        pricePerNumber: savedConfig.pricePerNumber || 10.00,
+                        keyType: savedConfig.keyType || 'cpf'
+                    };
+
+                    if (document.getElementById('pixKey')) {
+                        document.getElementById('pixKey').value = pixConfig.pixKey;
+                        document.getElementById('merchantName').value = pixConfig.merchantName;
+                        document.getElementById('merchantCity').value = pixConfig.merchantCity;
+                        document.getElementById('pricePerNumber').value = pixConfig.pricePerNumber;
+                        document.getElementById('pixKeyType').value = pixConfig.keyType;
+                    }
+                }
+            });
+        }
+
+        // Logout
+        window.logout = async () => {
+            try {
+                await signOut(auth);
+                window.location.href = 'index.html';
+            } catch (error) {
+                console.error("Erro ao fazer logout:", error);
+                showNotification('❌ Erro ao sair: ' + error.message);
+            }
+        };
+
+        // Inicializar rifa
+        function initializeRaffle() {
+            createNumberCards();
+            loadReservedNumbers();
+        }
+
+        // Criar cards de números
+        function createNumberCards() {
+            const grid = document.getElementById('numbersGrid');
+            grid.innerHTML = '';
+
+            for (let i = 0; i < 100; i++) {
+                const numberStr = String(i).padStart(2, '0');
+                const card = document.createElement('div');
+                card.className = 'number-card';
+                card.dataset.number = numberStr;
+                card.innerHTML = `<div class="number">${numberStr}</div>`;
+
+                card.addEventListener('click', () => toggleNumber(numberStr));
+                grid.appendChild(card);
+            }
+        }
+
+        // Carregar números reservados do Firebase
+        function loadReservedNumbers() {
+            const raffleRef = ref(database, 'raffle');
+            onValue(raffleRef, (snapshot) => {
+                reservedNumbers = snapshot.val() || {};
+                updateNumberCards();
+                updateStats();
+                
+                if (isAdmin) {
+                    updateAdminPanel();
+                }
+            });
+        }
+
+        // Extrair iniciais do nome
+        function getInitials(name) {
+            if (!name || typeof name !== 'string') return '??';
+            const words = name.trim().split(' ').filter(word => word.length > 0);
+            if (words.length === 1) {
+                return words[0].substring(0, 2).toUpperCase();
+            }
+            return (words[0][0] + words[words.length - 1][0]).toUpperCase();
+        }
+
+        // Atualizar cards de números
+        function updateNumberCards() {
+            document.querySelectorAll('.number-card').forEach(card => {
+                const number = card.dataset.number;
+                let ownerNameElement = card.querySelector('.owner-name');
+
+                if (reservedNumbers[number]) {
+                    card.classList.add('reserved');
+                    card.classList.remove('selected');
+
+                    const initials = getInitials(reservedNumbers[number].name);
+
+                    if (!ownerNameElement) {
+                        const nameDiv = document.createElement('div');
+                        nameDiv.className = 'owner-name';
+                        nameDiv.textContent = initials;
+                        card.appendChild(nameDiv);
+                    } else {
+                        ownerNameElement.textContent = initials;
+                    }
+                } else {
+                    card.classList.remove('reserved');
+                    if (ownerNameElement) {
+                        ownerNameElement.remove();
+                    }
+
+                    if (selectedNumbers.has(number)) {
+                        card.classList.add('selected');
+                    } else {
+                        card.classList.remove('selected');
+                    }
+                }
+            });
+        }
+
+        // Alternar seleção de número
+        function toggleNumber(number) {
+            if (reservedNumbers[number]) {
+                showNotification('Este número já está reservado!');
+                return;
+            }
+
+            if (selectedNumbers.has(number)) {
+                selectedNumbers.delete(number);
+            } else {
+                selectedNumbers.add(number);
+            }
+
+            updateNumberCards();
+            updateStats();
+        }
+
+        // Atualizar estatísticas
+        function updateStats() {
+            const reserved = Object.keys(reservedNumbers).length;
+            const selected = selectedNumbers.size;
+            const available = 100 - reserved - selected;
+
+            document.getElementById('availableCount').textContent = available;
+            document.getElementById('reservedCount').textContent = reserved;
+            document.getElementById('selectedCount').textContent = selected;
+
+            updateBuyersList();
+        }
+
+        // Atualizar lista de compradores
+        function updateBuyersList() {
+            const buyersList = document.getElementById('buyersList');
+
+            if (Object.keys(reservedNumbers).length === 0) {
+                buyersList.innerHTML = `
+                    <div class="empty-buyers">
+                        <div class="empty-buyers-icon">🎫</div>
+                        <p>Nenhum número reservado ainda</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Agrupar números por comprador
+            const buyersMap = {};
+            Object.keys(reservedNumbers).forEach(number => {
+                const buyer = reservedNumbers[number];
+                const name = buyer.name;
+
+                if (!buyersMap[name]) {
+                    buyersMap[name] = {
+                        name: name,
+                        numbers: [],
+                        timestamp: buyer.timestamp
+                    };
+                }
+                buyersMap[name].numbers.push(number);
+            });
+
+            // Ordenar números de cada comprador
+            Object.values(buyersMap).forEach(buyer => {
+                buyer.numbers.sort((a, b) => parseInt(a) - parseInt(b));
+            });
+
+            // Ordenar compradores por timestamp
+            const sortedBuyers = Object.values(buyersMap).sort((a, b) => b.timestamp - a.timestamp);
+
+            // Renderizar lista
+            buyersList.innerHTML = sortedBuyers.map(buyer => {
+                const numbersText = buyer.numbers.length <= 5 
+                    ? buyer.numbers.join(', ')
+                    : `${buyer.numbers.slice(0, 5).join(', ')} +${buyer.numbers.length - 5}`;
+
+                return `
+                    <div class="buyer-card">
+                        <div class="buyer-info">
+                            <div class="buyer-name">${buyer.name}</div>
+                            <div class="buyer-numbers">Números: ${numbersText}</div>
+                        </div>
+                        <div class="buyer-count">${buyer.numbers.length}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Abrir modal de reserva
+        window.openReservationModal = function() {
+            if (selectedNumbers.size === 0) {
+                showNotification('Selecione primeiro os números da rifa!');
+                return;
+            }
+
+            const modal = document.getElementById('confirmModal');
+            const display = document.getElementById('selectedNumbersDisplay');
+            const modalNumbersCount = document.getElementById('modalNumbersCount');
+            const modalTotalAmount = document.getElementById('modalTotalAmount');
+
+            display.innerHTML = '';
+            const numbersArray = Array.from(selectedNumbers).sort();
+            numbersArray.forEach(num => {
+                const span = document.createElement('span');
+                span.textContent = num;
+                display.appendChild(span);
+            });
+
+            const totalAmount = (selectedNumbers.size * pixConfig.pricePerNumber).toFixed(2);
+            modalNumbersCount.textContent = selectedNumbers.size;
+            modalTotalAmount.textContent = totalAmount;
+
+            modal.classList.add('active');
+        };
+
+        // Fechar modal
+        window.closeModal = function() {
+            document.getElementById('confirmModal').classList.remove('active');
+            document.getElementById('userName').value = '';
+        };
+
+        // CONFIRMAR RESERVA - CORRIGIDO
+        window.confirmReservation = async function() {
+            const userName = document.getElementById('userName').value.trim();
+
+            if (!userName) {
+                showNotification('Por favor, digite seu nome!');
+                return;
+            }
+
+            // Verificar se há configuração PIX
+            if (!pixConfig.pixKey) {
+                showNotification('Configure primeiro a chave PIX!');
+                closeModal();
+                openPixConfig();
+                return;
+            }
+
+            try {
+                const raffleRef = ref(database, 'raffle');
+                const snapshot = await get(raffleRef);
+                const currentReserved = snapshot.val() || {};
+
+                let hasConflict = false;
+                const conflictNumbers = [];
+
+                selectedNumbers.forEach(num => {
+                    if (currentReserved[num]) {
+                        hasConflict = true;
+                        conflictNumbers.push(num);
+                    }
+                });
+
+                if (hasConflict) {
+                    showNotification(`Ops! Os números ${conflictNumbers.join(', ')} já foram reservados. Escolha outros.`);
+                    conflictNumbers.forEach(num => selectedNumbers.delete(num));
+                    updateNumberCards();
+                    updateStats();
+
+                    if (selectedNumbers.size === 0) {
+                        closeModal();
+                    } else {
+                        openReservationModal();
+                    }
+                    return;
+                }
+
+                // 1. GERAR PIX PRIMEIRO (antes de salvar no Firebase)
+                if (selectedNumbers.size > 0) {
+                    await generatePixForSelectedNumbers();
+                }
+
+                // 2. SALVAR NO FIREBASE
+                const savePromises = [];
+                selectedNumbers.forEach(num => {
+                    const numberRef = ref(database, `raffle/${num}`);
+                    savePromises.push(
+                        set(numberRef, {
+                            name: userName,
+                            timestamp: Date.now(),
+                            userId: auth.currentUser.uid,
+                            email: auth.currentUser.email
+                        })
+                    );
+                });
+
+                await Promise.all(savePromises);
+
+                showNotification(`✅ ${selectedNumbers.size} número(s) reservado(s) com sucesso para ${userName}!`);
+                
+                // 3. LIMPAR APÓS TUDO ESTAR FEITO
+                selectedNumbers.clear();
+                closeModal();
+                updateStats();
+
+            } catch (error) {
+                console.error('Erro ao reservar números:', error);
+                showNotification('❌ Erro ao reservar números: ' + error.message);
+            }
+        };
+
+        // Gerar PIX a partir do modal
+        window.generatePixFromModal = function() {
+            // Gerar PIX sem fechar o modal imediatamente
+            generatePixForSelectedNumbers();
+        };
+
+        // FUNÇÕES DO PIX DINÂMICO
+
+        // Formatador de chave PIX
+        function formatPixKey(key, keyType) {
+            let formattedKey = key.trim();
+            
+            switch(keyType) {
+                case 'cpf':
+                    formattedKey = formattedKey.replace(/\D/g, '');
+                    if (formattedKey.length !== 11) {
+                        throw new Error('CPF deve ter 11 dígitos');
+                    }
+                    break;
+                    
+                case 'cnpj':
+                    formattedKey = formattedKey.replace(/\D/g, '');
+                    if (formattedKey.length !== 14) {
+                        throw new Error('CNPJ deve ter 14 dígitos');
+                    }
+                    break;
+                    
+                case 'phone':
+                    formattedKey = formattedKey.replace(/\D/g, '');
+                    if (formattedKey.length === 11) {
+                        formattedKey = '55' + formattedKey;
+                    } else if (formattedKey.length === 10) {
+                        formattedKey = '55' + formattedKey;
+                    } else {
+                        throw new Error('Telefone deve ter 10 ou 11 dígitos');
+                    }
+                    break;
+                    
+                case 'email':
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if (!emailRegex.test(formattedKey)) {
+                        throw new Error('Email inválido');
+                    }
+                    formattedKey = formattedKey.toLowerCase();
+                    break;
+                    
+                case 'random':
+                    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+                    if (!uuidRegex.test(formattedKey)) {
+                        throw new Error('Chave aleatória deve ser um UUID válido');
+                    }
+                    break;
+                    
+                default:
+                    throw new Error('Tipo de chave inválido');
+            }
+            
+            return formattedKey;
+        }
+
+        // Gerar código PIX CORRETO
+        function generatePixCode(pixKey, merchantName, merchantCity, amount, description = "") {
+            try {
+                if (!pixKey || pixKey.length < 5) {
+                    throw new Error('Chave PIX inválida');
+                }
+                
+                // Converter amount para número e fixar casas decimais
+                const amountNum = parseFloat(amount);
+                if (isNaN(amountNum) || amountNum <= 0) {
+                    throw new Error('Valor inválido');
+                }
+                
+                const amountStr = amountNum.toFixed(2); // Converte para string com 2 casas decimais
+                
+                // Função auxiliar para formatar campos
+                function formatarCampo(id, valor) {
+                    const valorStr = String(valor);
+                    return id + String(valorStr.length).padStart(2, '0') + valorStr;
+                }
+                
+                // Nome e cidade limitados e sem caracteres especiais
+                const nome = (merchantName || '').substring(0, 25).replace(/[^\x20-\x7E]/g, '');
+                const cidade = (merchantCity || '').substring(0, 15).replace(/[^\x20-\x7E]/g, '');
+                
+                if (!nome || !cidade) {
+                    throw new Error('Nome ou cidade inválidos');
+                }
+                
+                // Construir payload PIX corretamente
+                let payload = 
+                    "000201" + // Payload Format Indicator
+                    formatarCampo("26", // Merchant Account Information
+                        formatarCampo("00", "BR.GOV.BCB.PIX") +
+                        formatarCampo("01", pixKey)
+                    ) +
+                    "52040000" + // Merchant Category Code
+                    "5303986" + // Transaction Currency (986 = BRL)
+                    formatarCampo("54", amountStr) + // Transaction Amount
+                    "5802BR" + // Country Code
+                    formatarCampo("59", nome) + // Merchant Name
+                    formatarCampo("60", cidade) + // Merchant City
+                    formatarCampo("62", formatarCampo("05", "RIFA" + Date.now().toString().slice(-6))) + // TXID
+                    "6304"; // CRC16 Field (sem o CRC ainda)
+                
+                // Calcular CRC16
+                const crc = calculateCRC16(payload);
+                payload += crc;
+                
+                console.log("PIX Code gerado:", payload.substring(0, 100) + "...");
+                return payload;
+                
+            } catch (error) {
+                console.error("Erro ao gerar PIX:", error);
+                throw error;
+            }
+        }
+
+        // Calcular CRC16
+        function calculateCRC16(str) {
+            let crc = 0xFFFF;
+            for (let i = 0; i < str.length; i++) {
+                crc ^= str.charCodeAt(i) << 8;
+                for (let bit = 0; bit < 8; bit++) {
+                    crc = (crc & 0x8000) ? (crc << 1) ^ 0x1021 : crc << 1;
+                }
+                crc &= 0xFFFF;
+            }
+            return crc.toString(16).toUpperCase().padStart(4, '0');
+        }
+
+        // Gerar PIX para números selecionados
+        window.generatePixForSelectedNumbers = async function() {
+            if (selectedNumbers.size === 0) {
+                showNotification('Selecione primeiro os números da rifa!');
+                return;
+            }
+            
+            if (!pixConfig.pixKey) {
+                showNotification('Configure primeiro a chave PIX!');
+                openPixConfig();
+                return;
+            }
+            
+            try {
+                const formattedPixKey = formatPixKey(pixConfig.pixKey, pixConfig.keyType);
+                const totalAmount = selectedNumbers.size * pixConfig.pricePerNumber;
+                const numbersArray = Array.from(selectedNumbers).sort();
+                const description = `RIFA-${numbersArray.length}-NUM-${numbersArray.join('-')}`;
+                
+                const pixCode = generatePixCode(
+                    formattedPixKey,
+                    pixConfig.merchantName,
+                    pixConfig.merchantCity,
+                    totalAmount,
+                    description
+                );
+                
+                if (!pixCode) {
+                    throw new Error('Falha ao gerar código PIX');
+                }
+                
+                console.log("Código PIX gerado:", pixCode);
+                
+                document.getElementById('pixCode').textContent = pixCode;
+                document.getElementById('totalAmount').textContent = totalAmount.toFixed(2);
+                
+                await generateQRCode(pixCode);
+                
+                showNotification(`💰 PIX gerado! Valor: R$ ${totalAmount.toFixed(2)}`);
+                
+                document.querySelector('.pix-section').scrollIntoView({ 
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+                
+            } catch (error) {
+                console.error('Erro ao gerar PIX:', error);
+                showNotification(`❌ Erro: ${error.message}`);
+            }
+        };
+
+        // Gerar QR Code
+        async function generateQRCode(pixCode) {
+            return new Promise((resolve, reject) => {
+                const canvas = document.getElementById('pixQRCode');
+                const qrCodeContainer = document.querySelector('.qr-code-container');
+                
+                // Limpar canvas
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // Definir tamanho do canvas
+                canvas.width = 230;
+                canvas.height = 230;
+                
+                // Configurar fundo branco
+                ctx.fillStyle = '#FFFFFF';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                console.log("Gerando QR Code para:", pixCode.substring(0, 50) + "...");
+                
+                // Usar QRCode.toCanvas
+                try {
+                    QRCode.toCanvas(canvas, pixCode, {
+                        width: 220,
+                        margin: 1,
+                        color: {
+                            dark: '#000000',
+                            light: '#FFFFFF'
+                        },
+                        errorCorrectionLevel: 'M'
+                    }, function(error) {
+                        if (error) {
+                            console.error('Erro ao gerar QR Code:', error);
+                            // Fallback
+                            drawManualQRCode(canvas, ctx, pixCode);
+                            showNotification('⚠️ QR Code gerado com fallback');
+                            resolve();
+                        } else {
+                            console.log('QR Code gerado com sucesso');
+                            showNotification('✅ QR Code gerado!');
+                            resolve();
+                        }
+                    });
+                } catch (error) {
+                    console.error('Erro crítico ao gerar QR Code:', error);
+                    // Fallback final
+                    generateQRCodeWithAPI(pixCode, canvas);
+                    resolve();
+                }
+            });
+        }
+
+        // Gerar QR Code com API externa (fallback)
+        function generateQRCodeWithAPI(pixCode, canvas) {
+            const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=230x230&data=${encodeURIComponent(pixCode)}&margin=10&format=png`;
+            
+            const img = new Image();
+            img.crossOrigin = "Anonymous";
+            img.onload = function() {
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                console.log('QR Code gerado via API externa');
+                showNotification('✅ QR Code gerado via API!');
+            };
+            img.onerror = function() {
+                console.error('Erro ao carregar QR Code da API');
+                drawManualQRCode(canvas, canvas.getContext('2d'), pixCode);
+                showNotification('⚠️ QR Code gerado com fallback manual');
+            };
+            img.src = qrCodeUrl;
+        }
+
+        // Desenhar QR Code manualmente (fallback simples)
+        function drawManualQRCode(canvas, ctx, pixCode) {
+            // Fundo branco
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Desenhar texto informativo
+            ctx.fillStyle = '#000000';
+            ctx.font = 'bold 16px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('QR Code PIX', canvas.width/2, canvas.height/2 - 30);
+            
+            ctx.font = '12px Arial';
+            ctx.fillText('Valor: R$ ' + document.getElementById('totalAmount').textContent, canvas.width/2, canvas.height/2 - 10);
+            ctx.fillText('Use o código abaixo', canvas.width/2, canvas.height/2 + 10);
+            ctx.fillText('para pagar no app', canvas.width/2, canvas.height/2 + 30);
+            
+            // Desenhar borda
+            ctx.strokeStyle = '#00cc88';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(10, 10, canvas.width - 20, canvas.height - 20);
+        }
+
+        // Desenhar QR Code inicial
+        function drawInitialQRCode() {
+            const canvas = document.getElementById('pixQRCode');
+            const ctx = canvas.getContext('2d');
+            
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.fillStyle = '#00cc88';
+            ctx.font = 'bold 16px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('💰', canvas.width/2, canvas.height/2 - 10);
+            
+            ctx.fillStyle = '#666666';
+            ctx.font = '12px Arial';
+            ctx.fillText('Selecione números', canvas.width/2, canvas.height/2 + 20);
+            ctx.fillText('e clique em Gerar PIX', canvas.width/2, canvas.height/2 + 40);
+        }
+
+        // Copiar código PIX
+        window.copyPixCode = function() {
+            const pixCode = document.getElementById('pixCode').textContent;
+            
+            if (!pixCode || pixCode.includes('Selecione')) {
+                showNotification('Gere primeiro o código PIX!');
+                return;
+            }
+            
+            navigator.clipboard.writeText(pixCode).then(() => {
+                const copyBtn = document.getElementById('copyPixBtn');
+                const originalText = copyBtn.innerHTML;
+                
+                copyBtn.innerHTML = '✅ Copiado!';
+                copyBtn.classList.add('copied');
+                
+                showNotification('✅ Código PIX copiado!');
+                
+                setTimeout(() => {
+                    copyBtn.innerHTML = originalText;
+                    copyBtn.classList.remove('copied');
+                }, 2000);
+                
+            }).catch(err => {
+                console.error('Erro ao copiar:', err);
+                showNotification('❌ Erro ao copiar. Tente manualmente.');
+            });
+        };
+
+        // Mostrar/ocultar configuração do PIX
+        window.openPixConfig = function() {
+            if (!isAdmin) {
+                showNotification('Apenas administradores podem configurar o PIX.');
+                return;
+            }
+            
+            const modal = document.getElementById('pixConfigModal');
+            
+            document.getElementById('modalPixKey').value = pixConfig.pixKey;
+            document.getElementById('modalMerchantName').value = pixConfig.merchantName;
+            document.getElementById('modalMerchantCity').value = pixConfig.merchantCity;
+            document.getElementById('modalPricePerNumber').value = pixConfig.pricePerNumber;
+            document.getElementById('modalPixKeyType').value = pixConfig.keyType;
+            
+            modal.classList.add('active');
+        };
+
+        // Fechar modal de configuração PIX
+        window.closePixConfigModal = function() {
+            document.getElementById('pixConfigModal').classList.remove('active');
+        };
+
+        // Salvar configuração do PIX a partir do modal
+        window.savePixConfigFromModal = async function() {
+            try {
+                const newConfig = {
+                    pixKey: document.getElementById('modalPixKey').value.trim(),
+                    merchantName: document.getElementById('modalMerchantName').value.trim(),
+                    merchantCity: document.getElementById('modalMerchantCity').value.trim(),
+                    pricePerNumber: parseFloat(document.getElementById('modalPricePerNumber').value) || 10.00,
+                    keyType: document.getElementById('modalPixKeyType').value
+                };
+                
+                if (!newConfig.pixKey) {
+                    showNotification('Digite sua chave PIX!');
+                    return;
+                }
+                
+                if (!newConfig.merchantName) {
+                    showNotification('Digite o nome do recebedor!');
+                    return;
+                }
+                
+                if (!newConfig.merchantCity) {
+                    showNotification('Digite a cidade!');
+                    return;
+                }
+                
+                try {
+                    formatPixKey(newConfig.pixKey, newConfig.keyType);
+                } catch (error) {
+                    showNotification(`Chave PIX inválida: ${error.message}`);
+                    return;
+                }
+                
+                const configRef = ref(database, 'config/pixConfig');
+                await set(configRef, newConfig);
+                
+                pixConfig = newConfig;
+                closePixConfigModal();
+                showNotification('✅ Configuração do PIX salva com sucesso!');
+                
+            } catch (error) {
+                console.error('Erro ao salvar configuração:', error);
+                showNotification('❌ Erro ao salvar: ' + error.message);
+            }
+        };
+
+        // Testar código PIX
+        window.testPixCode = async function() {
+            if (!pixConfig.pixKey) {
+                showNotification('Configure primeiro a chave PIX!');
+                return;
+            }
+            
+            try {
+                const formattedPixKey = formatPixKey(pixConfig.pixKey, pixConfig.keyType);
+                
+                const testPixCode = generatePixCode(
+                    formattedPixKey,
+                    pixConfig.merchantName,
+                    pixConfig.merchantCity,
+                    pixConfig.pricePerNumber,
+                    "TESTE RIFA ELETRONICA"
+                );
+                
+                if (testPixCode) {
+                    document.getElementById('generatedPixCode').textContent = testPixCode;
+                    document.getElementById('pixPreview').style.display = 'block';
+                    
+                    // Criar canvas para teste
+                    const testCanvas = document.createElement('canvas');
+                    testCanvas.width = 150;
+                    testCanvas.height = 150;
+                    
+                    // Gerar QR Code para teste
+                    QRCode.toCanvas(testCanvas, testPixCode, {
+                        width: 150,
+                        margin: 1,
+                        color: {
+                            dark: '#000000',
+                            light: '#FFFFFF'
+                        }
+                    }, function(error) {
+                        if (error) {
+                            console.error('Erro ao gerar QR Code de teste:', error);
+                            showNotification('⚠️ Código gerado, mas QR Code falhou');
+                        } else {
+                            const preview = document.getElementById('pixPreview');
+                            testCanvas.style.margin = '10px auto';
+                            testCanvas.style.display = 'block';
+                            testCanvas.style.border = '1px solid #ddd';
+                            testCanvas.style.borderRadius = '8px';
+                            
+                            // Limpar e adicionar o canvas
+                            const existingCanvas = preview.querySelector('canvas');
+                            if (existingCanvas) {
+                                existingCanvas.remove();
+                            }
+                            preview.insertBefore(testCanvas, document.getElementById('generatedPixCode'));
+                            
+                            showNotification('✅ Código de teste gerado! Verifique no seu banco.');
+                        }
+                    });
+                }
+                
+            } catch (error) {
+                showNotification(`❌ Erro no teste: ${error.message}`);
+            }
+        };
+
+        // Salvar configuração do PIX da seção
+        window.savePixConfig = async function() {
+            const newConfig = {
+                pixKey: document.getElementById('pixKey').value.trim(),
+                merchantName: document.getElementById('merchantName').value.trim(),
+                merchantCity: document.getElementById('merchantCity').value.trim(),
+                pricePerNumber: parseFloat(document.getElementById('pricePerNumber').value) || 10.00,
+                keyType: document.getElementById('pixKeyType').value
+            };
+            
+            if (!newConfig.pixKey) {
+                showNotification('Digite sua chave PIX!');
+                return;
+            }
+            
+            try {
+                const configRef = ref(database, 'config/pixConfig');
+                await set(configRef, newConfig);
+                
+                pixConfig = newConfig;
+                showNotification('✅ Configuração do PIX salva com sucesso!');
+                
+            } catch (error) {
+                console.error('Erro ao salvar configuração PIX:', error);
+                showNotification('❌ Erro ao salvar configuração: ' + error.message);
+            }
+        };
+
+        // Copiar código PIX gerado no teste
+        window.copyGeneratedPix = function() {
+            const pixCode = document.getElementById('generatedPixCode').textContent;
+            navigator.clipboard.writeText(pixCode).then(() => {
+                showNotification('✅ Código PIX de teste copiado!');
+            });
+        };
+
+        // Mostrar/ocultar painel administrativo
+        window.toggleAdminSection = function() {
+            if (!isAdmin) {
+                showNotification('Apenas administradores podem acessar o painel administrativo.');
+                return;
+            }
+            
+            const adminSection = document.getElementById('adminSection');
+            if (adminSection.style.display === 'none' || adminSection.style.display === '') {
+                adminSection.style.display = 'block';
+                updateAdminPanel();
+            } else {
+                adminSection.style.display = 'none';
+            }
+        };
+
+        // Atualizar painel administrativo
+        function updateAdminPanel() {
+            if (!isAdmin) return;
+
+            const adminList = document.getElementById('adminList');
+
+            if (Object.keys(reservedNumbers).length === 0) {
+                adminList.innerHTML = `
+                    <div class="admin-empty">
+                        <div class="admin-empty-icon">🎫</div>
+                        <p>Nenhuma reserva para gerenciar</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Agrupar números por comprador
+            const buyersMap = {};
+            Object.keys(reservedNumbers).forEach(number => {
+                const buyer = reservedNumbers[number];
+                const name = buyer.name;
+
+                if (!buyersMap[name]) {
+                    buyersMap[name] = {
+                        name: name,
+                        numbers: [],
+                        timestamp: buyer.timestamp
+                    };
+                }
+                buyersMap[name].numbers.push(number);
+            });
+
+            // Ordenar números de cada comprador
+            Object.values(buyersMap).forEach(buyer => {
+                buyer.numbers.sort((a, b) => parseInt(a) - parseInt(b));
+            });
+
+            // Ordenar compradores por timestamp
+            const sortedBuyers = Object.values(buyersMap).sort((a, b) => a.timestamp - b.timestamp);
+
+            // Renderizar lista administrativa
+            adminList.innerHTML = sortedBuyers.map(buyer => {
+                const numbersHtml = buyer.numbers.map(num => 
+                    `<span class="admin-number-badge" onclick="cancelSingleNumber('${num}', '${buyer.name}')">${num}</span>`
+                ).join('');
+
+                return `
+                    <div class="admin-buyer-card">
+                        <div class="admin-buyer-header">
+                            <div class="admin-buyer-name">${buyer.name}</div>
+                            <div class="admin-buyer-count">${buyer.numbers.length} números</div>
+                        </div>
+                        <div class="admin-numbers-grid">
+                            ${numbersHtml}
+                        </div>
+                        <div class="admin-actions">
+                            <button class="btn-admin-delete" onclick="cancelAllNumbersFromBuyer('${buyer.name}')">
+                                🗑️ Cancelar Todos
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Cancelar um único número
+        window.cancelSingleNumber = function(number, buyerName) {
+            if (!isAdmin) {
+                showNotification('Acesso negado: apenas administradores podem cancelar números.');
+                return;
+            }
+
+            cancelAction = {
+                type: 'single',
+                number: number,
+                buyerName: buyerName
+            };
+
+            document.getElementById('confirmCancelText').innerHTML = `
+                Tem certeza que deseja cancelar o número <strong>${number}</strong> de <strong>${buyerName}</strong>?
+                <br><br>
+                Esta ação não pode ser desfeita.
+            `;
+
+            document.getElementById('confirmCancelModal').classList.add('active');
+        };
+
+        // Cancelar todos os números de um comprador
+        window.cancelAllNumbersFromBuyer = function(buyerName) {
+            if (!isAdmin) {
+                showNotification('Acesso negado: apenas administradores podem cancelar números.');
+                return;
+            }
+
+            const numbers = Object.keys(reservedNumbers).filter(num => 
+                reservedNumbers[num].name === buyerName
+            );
+
+            cancelAction = {
+                type: 'all',
+                buyerName: buyerName,
+                numbers: numbers
+            };
+
+            document.getElementById('confirmCancelText').innerHTML = `
+                Tem certeza que deseja cancelar <strong>TODOS os ${numbers.length} números</strong> de <strong>${buyerName}</strong>?
+                <br><br>
+                Números: ${numbers.join(', ')}
+                <br><br>
+                Esta ação não pode ser desfeita.
+            `;
+
+            document.getElementById('confirmCancelModal').classList.add('active');
+        };
+
+        // Fechar modal de confirmação
+        window.closeConfirmModal = function() {
+            document.getElementById('confirmCancelModal').classList.remove('active');
+            cancelAction = null;
+        };
+
+        // Executar cancelamento
+        window.executeCancel = async function() {
+            if (!isAdmin) {
+                closeConfirmModal();
+                return;
+            }
+
+            if (!cancelAction) {
+                closeConfirmModal();
+                return;
+            }
+
+            try {
+                if (cancelAction.type === 'single') {
+                    const numberRef = ref(database, `raffle/${cancelAction.number}`);
+                    await remove(numberRef);
+                    showNotification(`✅ Número ${cancelAction.number} cancelado com sucesso!`);
+
+                } else if (cancelAction.type === 'all') {
+                    const deletePromises = cancelAction.numbers.map(num => {
+                        const numberRef = ref(database, `raffle/${num}`);
+                        return remove(numberRef);
+                    });
+
+                    await Promise.all(deletePromises);
+                    showNotification(`✅ Todos os ${cancelAction.numbers.length} números de ${cancelAction.buyerName} foram cancelados!`);
+                }
+
+                closeConfirmModal();
+
+            } catch (error) {
+                console.error('Erro ao cancelar:', error);
+                showNotification('❌ Erro ao cancelar: ' + error.message);
+                closeConfirmModal();
+            }
+        };
+
+        // Mostrar notificação
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.classList.add('active');
+
+            setTimeout(() => {
+                notification.classList.remove('active');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
