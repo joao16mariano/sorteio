@@ -1,699 +1,135 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rifa Eletrônica - Login</title>
+    <title>Abrir WhatsApp - Firebase OK</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #0a0e27;
-            min-height: 100vh;
+            font-family: Arial, sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 20px;
-            position: relative;
-            overflow-x: hidden;
+            height: 100vh;
+            margin: 0;
+            background: #f0f0f0;
         }
-
-        body::before {
-            content: '';
-            position: absolute;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(0, 191, 255, 0.1) 1px, transparent 1px);
-            background-size: 50px 50px;
-            animation: moveBackground 20s linear infinite;
-        }
-
-        @keyframes moveBackground {
-            0% { transform: translate(0, 0); }
-            100% { transform: translate(50px, 50px); }
-        }
-
-        /* Bolhas */
-        .bubble {
-            position: absolute;
-            bottom: -100px;
-            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.9), rgba(0, 191, 255, 0.4));
-            border-radius: 50%;
-            box-shadow: 0 0 20px rgba(0, 191, 255, 0.3);
-            animation: bubbleRise linear infinite;
-            pointer-events: none;
-            z-index: 1;
-        }
-
-        @keyframes bubbleRise {
-            0% {
-                transform: translateY(0) scale(0.8);
-                opacity: 0.7;
-            }
-            50% {
-                opacity: 0.9;
-                transform: translateY(-50vh) scale(1.1);
-            }
-            75% {
-                opacity: 0.6;
-                transform: translateY(-75vh) scale(0.9);
-            }
-            100% {
-                transform: translateY(-100vh) scale(0.8);
-                opacity: 0;
-            }
-        }
-
-        /* Bolhas pequenas */
-        .bubble-small {
-            width: 15px;
-            height: 15px;
-            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.9), rgba(64, 224, 208, 0.5));
-            animation-duration: 8s;
-        }
-
-        /* Bolhas médias */
-        .bubble-medium {
-            width: 30px;
-            height: 30px;
-            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.9), rgba(0, 191, 255, 0.5));
-            animation-duration: 12s;
-        }
-
-        /* Bolhas grandes */
-        .bubble-large {
-            width: 50px;
-            height: 50px;
-            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.9), rgba(30, 144, 255, 0.4));
-            animation-duration: 16s;
-        }
-
-        /* Bolhas brilhantes */
-        .bubble-glow {
-            width: 40px;
-            height: 40px;
-            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 1), rgba(0, 212, 255, 0.6));
-            box-shadow: 0 0 30px rgba(0, 191, 255, 0.6);
-            animation-duration: 14s;
-        }
-
-        .glow-orb {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(80px);
-            opacity: 0.4;
-            animation: float 6s ease-in-out infinite;
-            z-index: 2;
-        }
-
-        .glow-orb-1 {
-            width: 300px;
-            height: 300px;
-            background: #00bfff;
-            top: -100px;
-            left: -100px;
-            animation-delay: 0s;
-        }
-
-        .glow-orb-2 {
-            width: 250px;
-            height: 250px;
-            background: #1e90ff;
-            bottom: -80px;
-            right: -80px;
-            animation-delay: 2s;
-        }
-
-        .glow-orb-3 {
-            width: 200px;
-            height: 200px;
-            background: #00d4ff;
-            top: 50%;
-            right: -50px;
-            animation-delay: 4s;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0) scale(1); }
-            50% { transform: translateY(-30px) scale(1.1); }
-        }
-
+        
         .container {
-            background: rgba(15, 20, 40, 0.95);
-            border-radius: 25px;
-            box-shadow: 
-                0 0 60px rgba(0, 191, 255, 0.4),
-                inset 0 0 30px rgba(0, 191, 255, 0.05);
-            padding: 50px;
-            max-width: 350px;
-            width: 100%;
-            border: 2px solid rgba(0, 191, 255, 0.5);
-            position: relative;
-            z-index: 20;
-            backdrop-filter: blur(10px);
-            animation: fadeIn 0.6s ease;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(-30px) scale(0.95);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-
-        .logo {
             text-align: center;
-            margin-bottom: 40px;
-            position: relative;
-        }
-
-        .logo h1,
-        .logo p {
-            color: white;
-        }
-
-        .logo h1 {
-            font-size: calc(2.8em * 1.2);
-            text-shadow: 
-                0 0 20px rgba(0, 191, 255, 0.8),
-                0 0 40px rgba(0, 191, 255, 0.5),
-                0 0 60px rgba(0, 191, 255, 0.3);
-            margin-bottom: 10px;
-            font-weight: 900;
-            letter-spacing: 4px;
-            animation: pulse 2s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { 
-                text-shadow: 
-                    0 0 20px rgba(0, 191, 255, 0.8),
-                    0 0 40px rgba(0, 191, 255, 0.5),
-                    0 0 60px rgba(0, 191, 255, 0.3);
-            }
-            50% { 
-                text-shadow: 
-                    0 0 30px rgba(0, 191, 255, 1),
-                    0 0 60px rgba(0, 191, 255, 0.7),
-                    0 0 90px rgba(0, 191, 255, 0.5);
-            }
-        }
-
-        .form-group {
-            margin-bottom: 25px;
-            position: relative;
-            z-index: 30;
-        }
-
-        label {
-            display: block;
-            color: #00d4ff;
-            margin-bottom: 8px;
-            font-weight: 600;
-            font-size: 0.95em;
-            text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
-        }
-
-        input[type="email"],
-        input[type="password"] {
-            width: 100%;
-            padding: 15px;
-            background: rgba(10, 15, 30, 0.8);
-            border: 2px solid rgba(0, 191, 255, 0.3);
-            border-radius: 12px;
-            color: #fff;
-            font-size: 1em;
-            transition: all 0.3s ease;
-        }
-
-        input[type="email"]:focus,
-        input[type="password"]:focus {
-            outline: none;
-            border-color: #00bfff;
-            box-shadow: 
-                0 0 20px rgba(0, 191, 255, 0.4),
-                inset 0 0 15px rgba(0, 191, 255, 0.1);
-            background: rgba(10, 15, 30, 0.95);
-        }
-
-        input::placeholder {
-            color: rgba(135, 206, 235, 0.5);
-        }
-
-        .btn {
-            width: 100%;
-            padding: 16px;
-            background: linear-gradient(135deg, #00bfff 0%, #1e90ff 50%, #0080ff 100%);
-            border: none;
-            border-radius: 12px;
-            color: #fff;
-            font-size: 1.1em;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            box-shadow: 
-                0 5px 25px rgba(0, 191, 255, 0.5),
-                0 0 30px rgba(0, 191, 255, 0.3);
-            position: relative;
-            overflow: hidden;
-            z-index: 30;
-        }
-
-        .btn::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.3);
-            transform: translate(-50%, -50%);
-            transition: width 0.6s, height 0.6s;
-        }
-
-        .btn:hover::before {
-            width: 300px;
-            height: 300px;
-        }
-
-        .btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 
-                0 8px 35px rgba(0, 191, 255, 0.7),
-                0 0 50px rgba(0, 191, 255, 0.5);
-        }
-
-        .btn:active {
-            transform: translateY(-1px);
-        }
-
-        .btn span {
-            position: relative;
-            z-index: 1;
-        }
-
-        .divider {
-            text-align: center;
-            margin: 30px 0;
-            color: #4a90e2;
-            position: relative;
-            font-weight: 600;
-            text-shadow: 0 0 10px rgba(74, 144, 226, 0.5);
-            z-index: 30;
-        }
-
-        .divider::before,
-        .divider::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            width: 40%;
-            height: 2px;
-            background: linear-gradient(to right, transparent, #00bfff, transparent);
-            box-shadow: 0 0 5px rgba(0, 191, 255, 0.5);
-        }
-
-        .divider::before {
-            left: 0;
-        }
-
-        .divider::after {
-            right: 0;
-        }
-
-        .error-message, .no-account-message, .success-message, .info-message {
-            background: rgba(255, 0, 80, 0.15);
-            border: 1px solid rgba(255, 0, 80, 0.5);
-            color: #ff4d79;
-            padding: 12px;
+            padding: 40px;
+            background: white;
             border-radius: 10px;
-            margin-bottom: 20px;
-            display: none;
-            text-align: center;
-            box-shadow: 0 0 15px rgba(255, 0, 80, 0.2);
-            z-index: 30;
-            position: relative;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            max-width: 400px;
         }
-
-        .no-account-message {
-            background: rgba(255, 193, 7, 0.15);
-            border: 1px solid rgba(255, 193, 7, 0.5);
-            color: #ffc107;
+        
+        button {
+            background: #25D366;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px;
+            width: 90%;
+            font-weight: bold;
         }
-
-        .success-message {
-            background: rgba(0, 255, 157, 0.15);
-            border: 1px solid rgba(0, 255, 157, 0.5);
-            color: #00ff9d;
+        
+        button:hover {
+            background: #128C7E;
         }
-
-        .info-message {
-            background: rgba(0, 191, 255, 0.15);
-            border: 1px solid rgba(0, 191, 255, 0.5);
-            color: #00bfff;
+        
+        input {
+            width: 90%;
+            padding: 15px;
+            margin: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
         }
-
-        @media (max-width: 600px) {
-            .container {
-                padding: 30px;
-                border-radius: 15px;
-            }
-
-            .logo h1 {
-                font-size: 2em;
-            }
-
-            .form-group label {
-                font-size: 0.85em;
-            }
-
-            input[type="email"],
-            input[type="password"],
-            .btn {
-                font-size: 0.9em;
-            }
-
-            .btn {
-                padding: 14px;
-            }
-
-            .divider {
-                font-size: 1em;
-            }
-
-            .logo p {
-                font-size: 0.9em;
-            }
-            
-            .bubble-large {
-                width: 35px;
-                height: 35px;
-            }
-            
-            .bubble-medium {
-                width: 20px;
-                height: 20px;
-            }
-            
-            .bubble-glow {
-                width: 25px;
-                height: 25px;
-            }
+        
+        .success {
+            background: #00ff0022;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 20px 0;
+            border-left: 4px solid #00aa00;
         }
     </style>
 </head>
 <body>
-    <div class="glow-orb glow-orb-1"></div>
-    <div class="glow-orb glow-orb-2"></div>
-    <div class="glow-orb glow-orb-3"></div>
-
     <div class="container">
-        <div class="logo">
-            <h1>🎟️ AMIGOS</h1>
-            <p>SISTEMA DE RIFA ONLINE</p>           
-            <p>- CRIAR SUA CONTA -</p>
+        <h1>📱 WhatsApp</h1>
+        
+        <div class="success">
+            ✅ Hospedado no Firebase = FUNCIONA!
         </div>
-
-        <img src="https://joao16mariano.github.io/sorteio/img/foto.png"
-             style="width:100%; max-width:400px; height:auto; position: relative; z-index: 30;"
-             alt="Foto">
-
-        <div id="errorMessage" class="error-message"></div>
-        <div id="noAccountMessage" class="no-account-message"></div>
-        <div id="successMessage" class="success-message"></div>
-        <div id="infoMessage" class="info-message"></div>
-
-        <form id="loginForm">
-            <div class="form-group">
-                <label for="email">E-mail</label>
-                <input type="email" id="email" placeholder="seu@email.com" required>
-            </div>
-
-            <div class="form-group">
-                <label for="password">Senha</label>
-                <input type="password" id="password" placeholder="••••••••" required>
-            </div>
-
-            <button type="submit" class="btn">
-                <span>Entrar na Rifa</span>
-            </button>
-        </form>
-
-        <div class="divider">OU</div>
-
-        <button type="button" class="btn" onclick="cadastrar()">
-            <span>Criar Conta</span>
+        
+        <!-- 1. COM NÚMERO ESPECÍFICO -->
+        <button onclick="abrirWhatsApp('5511999999999')">
+            📞 WhatsApp com número
         </button>
+        
+        <!-- 2. SEM NÚMERO - AGORA FUNCIONA! -->
+        <button onclick="abrirWhatsAppSemNumero()" style="background: #128C7E">
+            💬 WhatsApp sem número
+        </button>
+        
+        <!-- 3. COM NÚMERO DIGITADO -->
+        <input type="text" id="numero" placeholder="Digite o número (ex: 5511999999999)">
+        <button onclick="abrirWhatsAppDigitado()">
+            🔢 Conversar com número digitado
+        </button>
+        
+        <!-- 4. TESTE DIRETO -->
+        <button onclick="window.open('https://api.whatsapp.com', '_blank')" style="background: #666">
+            🧪 Teste direto API
+        </button>
+        
+        <p style="margin-top: 30px; color: #666; font-size: 14px;">
+            ⚡ Agora abre no APP (celular) ou Web (PC)<br>
+            <strong>Sem número:</strong> Abre a página inicial do WhatsApp
+        </p>
     </div>
 
-    <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-        import { 
-            getAuth, 
-            signInWithEmailAndPassword, 
-            createUserWithEmailAndPassword
-        } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyC3Klr3vaXQmpvA0r5f4SGL3-8qqkvt5Z0",
-            authDomain: "rifa-a3126.firebaseapp.com",
-            databaseURL: "https://rifa-a3126-default-rtdb.firebaseio.com",
-            projectId: "rifa-a3126",
-            storageBucket: "rifa-a3126.firebasestorage.app",
-            messagingSenderId: "777277903544",
-            appId: "1:777277903544:web:34903dc33eae3ec98dda4d"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-
-        // Função para criar bolhas
-        function createBubbles() {
-            const bubbleCount = 35; // Quantidade de bolhas
-            const bubbleTypes = ['bubble-small', 'bubble-medium', 'bubble-large', 'bubble-glow'];
-            
-            for (let i = 0; i < bubbleCount; i++) {
-                const bubble = document.createElement('div');
-                
-                // Seleciona um tipo aleatório de bolha
-                const randomType = bubbleTypes[Math.floor(Math.random() * bubbleTypes.length)];
-                bubble.className = `bubble ${randomType}`;
-                
-                // Posição horizontal aleatória
-                bubble.style.left = Math.random() * 100 + '%';
-                
-                // Atraso aleatório para começar a subir
-                bubble.style.animationDelay = Math.random() * 15 + 's';
-                
-                // Duração aleatória da animação (entre 8 e 20 segundos)
-                bubble.style.animationDuration = (Math.random() * 12 + 8) + 's';
-                
-                // Tamanhos variados para bolhas do mesmo tipo
-                if (randomType === 'bubble-small') {
-                    const size = Math.random() * 10 + 10;
-                    bubble.style.width = size + 'px';
-                    bubble.style.height = size + 'px';
-                } else if (randomType === 'bubble-medium') {
-                    const size = Math.random() * 15 + 20;
-                    bubble.style.width = size + 'px';
-                    bubble.style.height = size + 'px';
-                } else if (randomType === 'bubble-large') {
-                    const size = Math.random() * 25 + 35;
-                    bubble.style.width = size + 'px';
-                    bubble.style.height = size + 'px';
-                } else if (randomType === 'bubble-glow') {
-                    const size = Math.random() * 20 + 30;
-                    bubble.style.width = size + 'px';
-                    bubble.style.height = size + 'px';
-                }
-                
-                // Opacidade inicial aleatória
-                bubble.style.opacity = Math.random() * 0.5 + 0.3;
-                
-                document.body.appendChild(bubble);
+    <script>
+        // 🔥 FUNÇÃO CORRETA - Com número
+        function abrirWhatsApp(numero) {
+            numero = numero.replace(/\D/g, '');
+            if (numero) {
+                window.open(`https://api.whatsapp.com/send?phone=${numero}`, '_blank');
             }
         }
         
-        // Criar as bolhas quando a página carregar
-        createBubbles();
-
-        // Criar bolhas periodicamente para manter o efeito contínuo
-        setInterval(() => {
-            const bubble = document.createElement('div');
-            const bubbleTypes = ['bubble-small', 'bubble-medium', 'bubble-large', 'bubble-glow'];
-            const randomType = bubbleTypes[Math.floor(Math.random() * bubbleTypes.length)];
+        // 🔥 FUNÇÃO CORRETA - Sem número (AGORA FUNCIONA!)
+        function abrirWhatsAppSemNumero() {
+            // OPÇÃO 1: Abre WhatsApp direto (MELHOR PARA CELULAR)
+            window.open('https://api.whatsapp.com', '_blank');
             
-            bubble.className = `bubble ${randomType}`;
-            bubble.style.left = Math.random() * 100 + '%';
-            bubble.style.animationDelay = '0s';
-            bubble.style.animationDuration = (Math.random() * 12 + 8) + 's';
+            // OPÇÃO 2: Tenta abrir o app diretamente (fallback)
+            // setTimeout(() => {
+            //     window.location.href = 'whatsapp://';
+            // }, 100);
             
-            if (randomType === 'bubble-small') {
-                const size = Math.random() * 10 + 10;
-                bubble.style.width = size + 'px';
-                bubble.style.height = size + 'px';
-            } else if (randomType === 'bubble-medium') {
-                const size = Math.random() * 15 + 20;
-                bubble.style.width = size + 'px';
-                bubble.style.height = size + 'px';
-            } else if (randomType === 'bubble-large') {
-                const size = Math.random() * 25 + 35;
-                bubble.style.width = size + 'px';
-                bubble.style.height = size + 'px';
-            } else if (randomType === 'bubble-glow') {
-                const size = Math.random() * 20 + 30;
-                bubble.style.width = size + 'px';
-                bubble.style.height = size + 'px';
-            }
-            
-            bubble.style.opacity = Math.random() * 0.5 + 0.3;
-            
-            document.body.appendChild(bubble);
-            
-            // Remover a bolha após a animação terminar
-            setTimeout(() => {
-                bubble.remove();
-            }, 20000); // 20 segundos (tempo máximo de animação)
-            
-        }, 2000); // Criar nova bolha a cada 2 segundos
-
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-
-            if (!email || !password) {
-                showError('Preencha todos os campos!');
-                return;
-            }
-
-            try {
-                const userCredential = await signInWithEmailAndPassword(auth, email, password);
-                showSuccess('✅ Login realizado com sucesso! Redirecionando...');
-                
-                setTimeout(() => {
-                    window.location.href = 'principal.html';
-                }, 2000);
-                
-                document.getElementById('email').value = '';
-                document.getElementById('password').value = '';
-                
-            } catch (error) {
-                console.error('Erro no login:', error);
-                switch (error.code) {
-                    case 'auth/user-not-found':
-                        showNoAccountMessage(email);
-                        break;
-                    case 'auth/wrong-password':
-                    case 'auth/invalid-credential':
-                        showError('❌ Senha incorreta ou não é cadastrado! Tente novamente ou cadastre-se.');
-                        break;
-                    case 'auth/invalid-email':
-                        showError('❌ Email inválido!');
-                        break;
-                    case 'auth/too-many-requests':
-                        showError('❌ Muitas tentativas falhas. Aguarde um momento.');
-                        break;
-                    case 'auth/network-request-failed':
-                        showError('❌ Erro de conexão. Verifique sua internet.');
-                        break;
-                    default:
-                        showError('❌ Erro ao fazer login: ' + error.message);
-                }
-            }
-        });
-
-        window.cadastrar = async () => {
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-
-            if (!email || !password) {
-                showError('❌ Preencha email e senha para criar uma conta!');
-                return;
-            }
-
-            if (password.length < 6) {
-                showError('❌ A senha deve ter pelo menos 6 caracteres!');
-                return;
-            }
-
-            try {
-                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                showSuccess('✅ Conta criada com sucesso! Agora faça login com seu email e senha.');
-                document.getElementById('email').value = email;
-                document.getElementById('password').value = '';
-                document.getElementById('password').focus();
-                
-            } catch (error) {
-                console.error('Erro ao criar conta:', error);
-                switch (error.code) {
-                    case 'auth/email-already-in-use':
-                        showError('❌ Este email já está cadastrado! Faça login.');
-                        break;
-                    case 'auth/invalid-email':
-                        showError('❌ Email inválido!');
-                        break;
-                    case 'auth/weak-password':
-                        showError('❌ Senha muito fraca! Use pelo menos 6 caracteres.');
-                        break;
-                    default:
-                        showError('❌ Erro ao criar conta: ' + error.message);
-                }
-            }
-        };
-
-        function showError(message) {
-            const errorDiv = document.getElementById('errorMessage');
-            errorDiv.textContent = message;
-            errorDiv.style.display = 'block';
-            document.getElementById('noAccountMessage').style.display = 'none';
-            document.getElementById('successMessage').style.display = 'none';
-            document.getElementById('infoMessage').style.display = 'none';
-            
-            setTimeout(() => {
-                errorDiv.style.display = 'none';
-            }, 5000);
+            // OPÇÃO 3: WhatsApp Web no PC (comentado, usa opção 1 que já detecta)
+            // window.open('https://web.whatsapp.com', '_blank');
         }
-
-        function showSuccess(message) {
-            const successDiv = document.getElementById('successMessage');
-            successDiv.textContent = message;
-            successDiv.style.display = 'block';
-            document.getElementById('noAccountMessage').style.display = 'none';
-            document.getElementById('errorMessage').style.display = 'none';
-            document.getElementById('infoMessage').style.display = 'none';
-            
-            setTimeout(() => {
-                successDiv.style.display = 'none';
-            }, 5000);
+        
+        // Função para número digitado
+        function abrirWhatsAppDigitado() {
+            const numero = document.getElementById('numero').value;
+            if (numero) {
+                abrirWhatsApp(numero);
+            } else {
+                alert('Digite um número');
+            }
         }
-
-        function showNoAccountMessage(email) {
-            const noAccountDiv = document.getElementById('noAccountMessage');
-            noAccountDiv.textContent = `❌ Você ainda não tem conta com o email: ${email}. Clique em "Criar Conta" para se cadastrar.`;
-            noAccountDiv.style.display = 'block';
-            
-            document.getElementById('errorMessage').style.display = 'none';
-            document.getElementById('successMessage').style.display = 'none';
-            document.getElementById('infoMessage').style.display = 'none';
-            
-            setTimeout(() => {
-                noAccountDiv.style.display = 'none';
-            }, 8000);
-        }
+        
+        // Diagnóstico
+        console.log('Ambiente:', window.location.hostname);
+        console.log('Firebase hospedagem:', window.location.hostname.includes('firebase'));
     </script>
 </body>
 </html>
