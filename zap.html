@@ -1,0 +1,101 @@
+﻿<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Abrir WhatsApp</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        
+        .container {
+            text-align: center;
+            padding: 40px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+        
+        button {
+            background-color: #25D366;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #128C7E;
+        }
+        
+        button i {
+            margin-right: 10px;
+        }
+        
+        .numero {
+            margin-top: 20px;
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📱 Abrir WhatsApp</h1>
+        
+        <!-- Botão simples que abre o WhatsApp -->
+        <button onclick="abrirWhatsApp()">
+            📲 Abrir WhatsApp Web
+        </button>
+        
+        <!-- Versão com número de telefone pré-definido (opcional) -->
+        <div style="margin-top: 40px;">
+            <h3>Com número específico:</h3>
+            <input type="text" id="telefone" placeholder="Digite o número (com DDD)" 
+                   style="padding: 10px; width: 200px; margin-bottom: 10px; border-radius: 5px; border: 1px solid #ccc;">
+            <br>
+            <button onclick="abrirWhatsAppNumero()">
+                📲 Abrir conversa
+            </button>
+            <p class="5547996978704">Exemplo: 5511999999999 (código do país + DDD + número)</p>
+        </div>
+    </div>
+
+    <script>
+        // Função para abrir o WhatsApp Web diretamente
+        function abrirWhatsApp() {
+            window.open('https://web.whatsapp.com', '_blank');
+        }
+        
+        // Função para abrir conversa com número específico
+        function abrirWhatsAppNumero() {
+            let telefone = document.getElementById('telefone').value;
+            
+            // Remove caracteres não numéricos
+            telefone = telefone.replace(/\D/g, '');
+            
+            if (telefone) {
+                // Abre WhatsApp Web com o número
+                window.open(`https://web.whatsapp.com/send?phone=${telefone}`, '_blank');
+            } else {
+                alert('Por favor, digite um número de telefone');
+            }
+        }
+    </script>
+</body>
+</html>
