@@ -20,6 +20,7 @@
             align-items: center;
             padding: 20px;
             position: relative;
+            overflow-x: hidden;
         }
 
         body::before {
@@ -37,12 +38,77 @@
             100% { transform: translate(50px, 50px); }
         }
 
+        /* Bolhas */
+        .bubble {
+            position: absolute;
+            bottom: -100px;
+            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.9), rgba(0, 191, 255, 0.4));
+            border-radius: 50%;
+            box-shadow: 0 0 20px rgba(0, 191, 255, 0.3);
+            animation: bubbleRise linear infinite;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        @keyframes bubbleRise {
+            0% {
+                transform: translateY(0) scale(0.8);
+                opacity: 0.7;
+            }
+            50% {
+                opacity: 0.9;
+                transform: translateY(-50vh) scale(1.1);
+            }
+            75% {
+                opacity: 0.6;
+                transform: translateY(-75vh) scale(0.9);
+            }
+            100% {
+                transform: translateY(-100vh) scale(0.8);
+                opacity: 0;
+            }
+        }
+
+        /* Bolhas pequenas */
+        .bubble-small {
+            width: 15px;
+            height: 15px;
+            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.9), rgba(64, 224, 208, 0.5));
+            animation-duration: 8s;
+        }
+
+        /* Bolhas médias */
+        .bubble-medium {
+            width: 30px;
+            height: 30px;
+            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.9), rgba(0, 191, 255, 0.5));
+            animation-duration: 12s;
+        }
+
+        /* Bolhas grandes */
+        .bubble-large {
+            width: 50px;
+            height: 50px;
+            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.9), rgba(30, 144, 255, 0.4));
+            animation-duration: 16s;
+        }
+
+        /* Bolhas brilhantes */
+        .bubble-glow {
+            width: 40px;
+            height: 40px;
+            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 1), rgba(0, 212, 255, 0.6));
+            box-shadow: 0 0 30px rgba(0, 191, 255, 0.6);
+            animation-duration: 14s;
+        }
+
         .glow-orb {
             position: absolute;
             border-radius: 50%;
             filter: blur(80px);
             opacity: 0.4;
             animation: float 6s ease-in-out infinite;
+            z-index: 2;
         }
 
         .glow-orb-1 {
@@ -88,7 +154,7 @@
             width: 100%;
             border: 2px solid rgba(0, 191, 255, 0.5);
             position: relative;
-            z-index: 10;
+            z-index: 20;
             backdrop-filter: blur(10px);
             animation: fadeIn 0.6s ease;
         }
@@ -112,12 +178,11 @@
 
         .logo h1,
         .logo p {
-            color: white; /* Define a cor do texto como branca */
+            color: white;
         }
 
         .logo h1 {
             font-size: calc(2.8em * 1.2);
-
             text-shadow: 
                 0 0 20px rgba(0, 191, 255, 0.8),
                 0 0 40px rgba(0, 191, 255, 0.5),
@@ -146,6 +211,7 @@
         .form-group {
             margin-bottom: 25px;
             position: relative;
+            z-index: 30;
         }
 
         label {
@@ -201,6 +267,7 @@
                 0 0 30px rgba(0, 191, 255, 0.3);
             position: relative;
             overflow: hidden;
+            z-index: 30;
         }
 
         .btn::before {
@@ -244,6 +311,7 @@
             position: relative;
             font-weight: 600;
             text-shadow: 0 0 10px rgba(74, 144, 226, 0.5);
+            z-index: 30;
         }
 
         .divider::before,
@@ -275,6 +343,8 @@
             display: none;
             text-align: center;
             box-shadow: 0 0 15px rgba(255, 0, 80, 0.2);
+            z-index: 30;
+            position: relative;
         }
 
         .no-account-message {
@@ -326,6 +396,21 @@
             .logo p {
                 font-size: 0.9em;
             }
+            
+            .bubble-large {
+                width: 35px;
+                height: 35px;
+            }
+            
+            .bubble-medium {
+                width: 20px;
+                height: 20px;
+            }
+            
+            .bubble-glow {
+                width: 25px;
+                height: 25px;
+            }
         }
     </style>
 </head>
@@ -342,7 +427,7 @@
         </div>
 
         <img src="https://joao16mariano.github.io/sorteio/img/foto.png"
-             style="width:100%; max-width:400px; height:auto;"
+             style="width:100%; max-width:400px; height:auto; position: relative; z-index: 30;"
              alt="Foto">
 
         <div id="errorMessage" class="error-message"></div>
@@ -394,17 +479,95 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
 
-        function createParticles() {
-            for (let i = 0; i < 20; i++) {
-                const particle = document.createElement('div');
-                particle.className = 'particle';
-                particle.style.left = Math.random() * 100 + '%';
-                particle.style.animationDelay = Math.random() * 8 + 's';
-                particle.style.animationDuration = (Math.random() * 4 + 6) + 's';
-                document.body.appendChild(particle);
+        // Função para criar bolhas
+        function createBubbles() {
+            const bubbleCount = 35; // Quantidade de bolhas
+            const bubbleTypes = ['bubble-small', 'bubble-medium', 'bubble-large', 'bubble-glow'];
+            
+            for (let i = 0; i < bubbleCount; i++) {
+                const bubble = document.createElement('div');
+                
+                // Seleciona um tipo aleatório de bolha
+                const randomType = bubbleTypes[Math.floor(Math.random() * bubbleTypes.length)];
+                bubble.className = `bubble ${randomType}`;
+                
+                // Posição horizontal aleatória
+                bubble.style.left = Math.random() * 100 + '%';
+                
+                // Atraso aleatório para começar a subir
+                bubble.style.animationDelay = Math.random() * 15 + 's';
+                
+                // Duração aleatória da animação (entre 8 e 20 segundos)
+                bubble.style.animationDuration = (Math.random() * 12 + 8) + 's';
+                
+                // Tamanhos variados para bolhas do mesmo tipo
+                if (randomType === 'bubble-small') {
+                    const size = Math.random() * 10 + 10;
+                    bubble.style.width = size + 'px';
+                    bubble.style.height = size + 'px';
+                } else if (randomType === 'bubble-medium') {
+                    const size = Math.random() * 15 + 20;
+                    bubble.style.width = size + 'px';
+                    bubble.style.height = size + 'px';
+                } else if (randomType === 'bubble-large') {
+                    const size = Math.random() * 25 + 35;
+                    bubble.style.width = size + 'px';
+                    bubble.style.height = size + 'px';
+                } else if (randomType === 'bubble-glow') {
+                    const size = Math.random() * 20 + 30;
+                    bubble.style.width = size + 'px';
+                    bubble.style.height = size + 'px';
+                }
+                
+                // Opacidade inicial aleatória
+                bubble.style.opacity = Math.random() * 0.5 + 0.3;
+                
+                document.body.appendChild(bubble);
             }
         }
-        createParticles();
+        
+        // Criar as bolhas quando a página carregar
+        createBubbles();
+
+        // Criar bolhas periodicamente para manter o efeito contínuo
+        setInterval(() => {
+            const bubble = document.createElement('div');
+            const bubbleTypes = ['bubble-small', 'bubble-medium', 'bubble-large', 'bubble-glow'];
+            const randomType = bubbleTypes[Math.floor(Math.random() * bubbleTypes.length)];
+            
+            bubble.className = `bubble ${randomType}`;
+            bubble.style.left = Math.random() * 100 + '%';
+            bubble.style.animationDelay = '0s';
+            bubble.style.animationDuration = (Math.random() * 12 + 8) + 's';
+            
+            if (randomType === 'bubble-small') {
+                const size = Math.random() * 10 + 10;
+                bubble.style.width = size + 'px';
+                bubble.style.height = size + 'px';
+            } else if (randomType === 'bubble-medium') {
+                const size = Math.random() * 15 + 20;
+                bubble.style.width = size + 'px';
+                bubble.style.height = size + 'px';
+            } else if (randomType === 'bubble-large') {
+                const size = Math.random() * 25 + 35;
+                bubble.style.width = size + 'px';
+                bubble.style.height = size + 'px';
+            } else if (randomType === 'bubble-glow') {
+                const size = Math.random() * 20 + 30;
+                bubble.style.width = size + 'px';
+                bubble.style.height = size + 'px';
+            }
+            
+            bubble.style.opacity = Math.random() * 0.5 + 0.3;
+            
+            document.body.appendChild(bubble);
+            
+            // Remover a bolha após a animação terminar
+            setTimeout(() => {
+                bubble.remove();
+            }, 20000); // 20 segundos (tempo máximo de animação)
+            
+        }, 2000); // Criar nova bolha a cada 2 segundos
 
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
