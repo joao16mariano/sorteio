@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Abrir WhatsApp - Firebase OK</title>
+    <title>Abrir WhatsApp</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -22,6 +22,28 @@
             border-radius: 10px;
             box-shadow: 0 0 20px rgba(0,0,0,0.1);
             max-width: 400px;
+            width: 90%;
+        }
+        
+        h1 {
+            color: #075e54;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+        
+        input {
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0 20px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        
+        input:focus {
+            border-color: #25D366;
+            outline: none;
         }
         
         button {
@@ -29,33 +51,23 @@
             color: white;
             border: none;
             padding: 15px 30px;
-            font-size: 16px;
-            border-radius: 5px;
+            font-size: 18px;
+            border-radius: 8px;
             cursor: pointer;
-            margin: 10px;
-            width: 90%;
+            width: 100%;
             font-weight: bold;
+            transition: 0.3s;
         }
         
         button:hover {
             background: #128C7E;
+            transform: scale(1.02);
         }
         
-        input {
-            width: 90%;
-            padding: 15px;
-            margin: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-        
-        .success {
-            background: #00ff0022;
-            padding: 10px;
-            border-radius: 5px;
-            margin: 20px 0;
-            border-left: 4px solid #00aa00;
+        .info {
+            margin-top: 20px;
+            color: #666;
+            font-size: 12px;
         }
     </style>
 </head>
@@ -63,73 +75,42 @@
     <div class="container">
         <h1>📱 WhatsApp</h1>
         
-        <div class="success">
-            ✅ Hospedado no Firebase = FUNCIONA!
+        <input type="text" id="numero" 
+               placeholder="Digite o número (ex: 5511999999999)">
+        
+        <button onclick="abrirWhatsApp()">
+            📲 Iniciar conversa
+        </button>
+        
+        <div class="info">
+            Formato: Código do país + DDD + Número<br>
+            Exemplo: 5511999999999
         </div>
-        
-        <!-- 1. COM NÚMERO ESPECÍFICO -->
-        <button onclick="abrirWhatsApp('5511999999999')">
-            📞 WhatsApp com número
-        </button>
-        
-        <!-- 2. SEM NÚMERO - AGORA FUNCIONA! -->
-        <button onclick="abrirWhatsAppSemNumero()" style="background: #128C7E">
-            💬 WhatsApp sem número
-        </button>
-        
-        <!-- 3. COM NÚMERO DIGITADO -->
-        <input type="text" id="numero" placeholder="Digite o número (ex: 5511999999999)">
-        <button onclick="abrirWhatsAppDigitado()">
-            🔢 Conversar com número digitado
-        </button>
-        
-        <!-- 4. TESTE DIRETO -->
-        <button onclick="window.open('https://api.whatsapp.com', '_blank')" style="background: #666">
-            🧪 Teste direto API
-        </button>
-        
-        <p style="margin-top: 30px; color: #666; font-size: 14px;">
-            ⚡ Agora abre no APP (celular) ou Web (PC)<br>
-            <strong>Sem número:</strong> Abre a página inicial do WhatsApp
-        </p>
     </div>
 
     <script>
-        // 🔥 FUNÇÃO CORRETA - Com número
-        function abrirWhatsApp(numero) {
+        function abrirWhatsApp() {
+            let numero = document.getElementById('numero').value;
+            
+            if (!numero) {
+                alert('Por favor, digite um número');
+                return;
+            }
+            
+            // Remove tudo que não é número
             numero = numero.replace(/\D/g, '');
+            
             if (numero) {
                 window.open(`https://api.whatsapp.com/send?phone=${numero}`, '_blank');
             }
         }
-        
-        // 🔥 FUNÇÃO CORRETA - Sem número (AGORA FUNCIONA!)
-        function abrirWhatsAppSemNumero() {
-            // OPÇÃO 1: Abre WhatsApp direto (MELHOR PARA CELULAR)
-            window.open('https://api.whatsapp.com', '_blank');
-            
-            // OPÇÃO 2: Tenta abrir o app diretamente (fallback)
-            // setTimeout(() => {
-            //     window.location.href = 'whatsapp://';
-            // }, 100);
-            
-            // OPÇÃO 3: WhatsApp Web no PC (comentado, usa opção 1 que já detecta)
-            // window.open('https://web.whatsapp.com', '_blank');
-        }
-        
-        // Função para número digitado
-        function abrirWhatsAppDigitado() {
-            const numero = document.getElementById('numero').value;
-            if (numero) {
-                abrirWhatsApp(numero);
-            } else {
-                alert('Digite um número');
+
+        // Permitir enviar pressionando Enter
+        document.getElementById('numero').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                abrirWhatsApp();
             }
-        }
-        
-        // Diagnóstico
-        console.log('Ambiente:', window.location.hostname);
-        console.log('Firebase hospedagem:', window.location.hostname.includes('firebase'));
+        });
     </script>
 </body>
 </html>
