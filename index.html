@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -13,60 +13,157 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            background: #0a0e27;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0, 191, 255, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: moveBackground 20s linear infinite;
+        }
+
+        @keyframes moveBackground {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        .glow-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.4;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .glow-orb-1 {
+            width: 300px;
+            height: 300px;
+            background: #00bfff;
+            top: -100px;
+            left: -100px;
+            animation-delay: 0s;
+        }
+
+        .glow-orb-2 {
+            width: 250px;
+            height: 250px;
+            background: #1e90ff;
+            bottom: -80px;
+            right: -80px;
+            animation-delay: 2s;
+        }
+
+        .glow-orb-3 {
+            width: 200px;
+            height: 200px;
+            background: #00d4ff;
+            top: 50%;
+            right: -50px;
+            animation-delay: 4s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-30px) scale(1.1); }
         }
 
         .container {
-            background: #1f1f1f;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(255, 140, 0, 0.3);
+            background: rgba(15, 20, 40, 0.95);
+            border-radius: 25px;
+            box-shadow: 
+                0 0 60px rgba(0, 191, 255, 0.4),
+                inset 0 0 30px rgba(0, 191, 255, 0.05);
             padding: 50px;
-            max-width: 450px;
+            max-width: 350px;
             width: 100%;
-            border: 2px solid #ff8c00;
+            border: 2px solid rgba(0, 191, 255, 0.5);
+            position: relative;
+            z-index: 10;
+            backdrop-filter: blur(10px);
+            animation: fadeIn 0.6s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
         }
 
         .logo {
             text-align: center;
             margin-bottom: 40px;
+            position: relative;
+        }
+
+        .logo h1,
+        .logo p {
+            color: white; /* Define a cor do texto como branca */
         }
 
         .logo h1 {
-            color: #ff8c00;
-            font-size: 2.5em;
-            text-shadow: 0 0 20px rgba(255, 140, 0, 0.5);
+            font-size: calc(2.8em * 1.2);
+
+            text-shadow: 
+                0 0 20px rgba(0, 191, 255, 0.8),
+                0 0 40px rgba(0, 191, 255, 0.5),
+                0 0 60px rgba(0, 191, 255, 0.3);
             margin-bottom: 10px;
+            font-weight: 900;
+            letter-spacing: 4px;
+            animation: pulse 2s ease-in-out infinite;
         }
 
-        .logo p {
-            color: #aaa;
-            font-size: 1.1em;
+        @keyframes pulse {
+            0%, 100% { 
+                text-shadow: 
+                    0 0 20px rgba(0, 191, 255, 0.8),
+                    0 0 40px rgba(0, 191, 255, 0.5),
+                    0 0 60px rgba(0, 191, 255, 0.3);
+            }
+            50% { 
+                text-shadow: 
+                    0 0 30px rgba(0, 191, 255, 1),
+                    0 0 60px rgba(0, 191, 255, 0.7),
+                    0 0 90px rgba(0, 191, 255, 0.5);
+            }
         }
 
         .form-group {
             margin-bottom: 25px;
+            position: relative;
         }
 
         label {
             display: block;
-            color: #ff8c00;
+            color: #00d4ff;
             margin-bottom: 8px;
             font-weight: 600;
             font-size: 0.95em;
+            text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
         }
 
         input[type="email"],
         input[type="password"] {
             width: 100%;
             padding: 15px;
-            background: #2a2a2a;
-            border: 2px solid #444;
-            border-radius: 10px;
+            background: rgba(10, 15, 30, 0.8);
+            border: 2px solid rgba(0, 191, 255, 0.3);
+            border-radius: 12px;
             color: #fff;
             font-size: 1em;
             transition: all 0.3s ease;
@@ -75,40 +172,78 @@
         input[type="email"]:focus,
         input[type="password"]:focus {
             outline: none;
-            border-color: #ff8c00;
-            box-shadow: 0 0 15px rgba(255, 140, 0, 0.3);
+            border-color: #00bfff;
+            box-shadow: 
+                0 0 20px rgba(0, 191, 255, 0.4),
+                inset 0 0 15px rgba(0, 191, 255, 0.1);
+            background: rgba(10, 15, 30, 0.95);
+        }
+
+        input::placeholder {
+            color: rgba(135, 206, 235, 0.5);
         }
 
         .btn {
             width: 100%;
-            padding: 15px;
-            background: linear-gradient(135deg, #ff8c00 0%, #ff6600 100%);
+            padding: 16px;
+            background: linear-gradient(135deg, #00bfff 0%, #1e90ff 50%, #0080ff 100%);
             border: none;
-            border-radius: 10px;
+            border-radius: 12px;
             color: #fff;
             font-size: 1.1em;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
             transition: all 0.3s ease;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            box-shadow: 0 5px 20px rgba(255, 140, 0, 0.4);
+            letter-spacing: 2px;
+            box-shadow: 
+                0 5px 25px rgba(0, 191, 255, 0.5),
+                0 0 30px rgba(0, 191, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
         }
 
         .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(255, 140, 0, 0.6);
+            transform: translateY(-3px);
+            box-shadow: 
+                0 8px 35px rgba(0, 191, 255, 0.7),
+                0 0 50px rgba(0, 191, 255, 0.5);
         }
 
         .btn:active {
-            transform: translateY(0);
+            transform: translateY(-1px);
+        }
+
+        .btn span {
+            position: relative;
+            z-index: 1;
         }
 
         .divider {
             text-align: center;
             margin: 30px 0;
-            color: #666;
+            color: #4a90e2;
             position: relative;
+            font-weight: 600;
+            text-shadow: 0 0 10px rgba(74, 144, 226, 0.5);
         }
 
         .divider::before,
@@ -117,8 +252,9 @@
             position: absolute;
             top: 50%;
             width: 40%;
-            height: 1px;
-            background: #444;
+            height: 2px;
+            background: linear-gradient(to right, transparent, #00bfff, transparent);
+            box-shadow: 0 0 5px rgba(0, 191, 255, 0.5);
         }
 
         .divider::before {
@@ -129,53 +265,90 @@
             right: 0;
         }
 
-        .error-message {
-            background: rgba(255, 0, 0, 0.2);
-            border: 1px solid #ff0000;
-            color: #ff6666;
+        .error-message, .no-account-message, .success-message, .info-message {
+            background: rgba(255, 0, 80, 0.15);
+            border: 1px solid rgba(255, 0, 80, 0.5);
+            color: #ff4d79;
             padding: 12px;
-            border-radius: 8px;
+            border-radius: 10px;
             margin-bottom: 20px;
             display: none;
             text-align: center;
+            box-shadow: 0 0 15px rgba(255, 0, 80, 0.2);
+        }
+
+        .no-account-message {
+            background: rgba(255, 193, 7, 0.15);
+            border: 1px solid rgba(255, 193, 7, 0.5);
+            color: #ffc107;
         }
 
         .success-message {
-            background: rgba(0, 255, 0, 0.2);
-            border: 1px solid #00ff00;
-            color: #66ff66;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            display: none;
-            text-align: center;
+            background: rgba(0, 255, 157, 0.15);
+            border: 1px solid rgba(0, 255, 157, 0.5);
+            color: #00ff9d;
         }
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .info-message {
+            background: rgba(0, 191, 255, 0.15);
+            border: 1px solid rgba(0, 191, 255, 0.5);
+            color: #00bfff;
         }
 
-        .container {
-            animation: fadeIn 0.5s ease;
+        @media (max-width: 600px) {
+            .container {
+                padding: 30px;
+                border-radius: 15px;
+            }
+
+            .logo h1 {
+                font-size: 2em;
+            }
+
+            .form-group label {
+                font-size: 0.85em;
+            }
+
+            input[type="email"],
+            input[type="password"],
+            .btn {
+                font-size: 0.9em;
+            }
+
+            .btn {
+                padding: 14px;
+            }
+
+            .divider {
+                font-size: 1em;
+            }
+
+            .logo p {
+                font-size: 0.9em;
+            }
         }
     </style>
 </head>
 <body>
+    <div class="glow-orb glow-orb-1"></div>
+    <div class="glow-orb glow-orb-2"></div>
+    <div class="glow-orb glow-orb-3"></div>
+
     <div class="container">
         <div class="logo">
-            <h1>🎟️ RIFA</h1>
-            <p>Sistema de Rifas Online</p>
+            <h1>🎟️ AMIGOS</h1>
+            <p>SISTEMA DE RIFA ONLINE</p>           
+            <p>- CRIAR SUA CONTA -</p>
         </div>
 
+        <img src="https://joao16mariano.github.io/sorteio/img/foto.png"
+             style="width:100%; max-width:400px; height:auto;"
+             alt="Foto">
+
         <div id="errorMessage" class="error-message"></div>
+        <div id="noAccountMessage" class="no-account-message"></div>
         <div id="successMessage" class="success-message"></div>
+        <div id="infoMessage" class="info-message"></div>
 
         <form id="loginForm">
             <div class="form-group">
@@ -188,12 +361,16 @@
                 <input type="password" id="password" placeholder="••••••••" required>
             </div>
 
-            <button type="submit" class="btn">Entrar na Rifa</button>
+            <button type="submit" class="btn">
+                <span>Entrar na Rifa</span>
+            </button>
         </form>
 
         <div class="divider">OU</div>
 
-        <button type="button" class="btn" onclick="cadastrar()">Criar Conta</button>
+        <button type="button" class="btn" onclick="cadastrar()">
+            <span>Criar Conta</span>
+        </button>
     </div>
 
     <script type="module">
@@ -201,84 +378,117 @@
         import { 
             getAuth, 
             signInWithEmailAndPassword, 
-            createUserWithEmailAndPassword,
-            onAuthStateChanged 
+            createUserWithEmailAndPassword
         } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 
-        // USE APENAS UMA DESTAS CONFIGURAÇÕES - ESCOLHA SEU PROJETO:
-
-        // Configuração para projeto "brenda-cf5f3"
         const firebaseConfig = {
-        apiKey: "AIzaSyC3Klr3vaXQmpvA0r5f4SGL3-8qqkvt5Z0",
-  authDomain: "rifa-a3126.firebaseapp.com",
-  databaseURL: "https://rifa-a3126-default-rtdb.firebaseio.com",
-  projectId: "rifa-a3126",
-  storageBucket: "rifa-a3126.firebasestorage.app",
-  messagingSenderId: "777277903544",
-  appId: "1:777277903544:web:34903dc33eae3ec98dda4d"
+            apiKey: "AIzaSyC3Klr3vaXQmpvA0r5f4SGL3-8qqkvt5Z0",
+            authDomain: "rifa-a3126.firebaseapp.com",
+            databaseURL: "https://rifa-a3126-default-rtdb.firebaseio.com",
+            projectId: "rifa-a3126",
+            storageBucket: "rifa-a3126.firebasestorage.app",
+            messagingSenderId: "777277903544",
+            appId: "1:777277903544:web:34903dc33eae3ec98dda4d"
         };
 
-        /* 
-        // Configuração para projeto "luzdaarea" (descomente se quiser usar este)
-        const firebaseConfig = {
-            apiKey: "AIzaSyDK6BihUGbjJAUCog5ar10xrLIEoW3DrpU",
-            authDomain: "luzdaarea.firebaseapp.com",
-            databaseURL: "https://luzdaarea-default-rtdb.firebaseio.com",
-            projectId: "luzdaarea",
-            storageBucket: "luzdaarea.firebasestorage.app",
-            messagingSenderId: "176018884427",
-            appId: "1:176018884427:web:2ad49bf76602f505830ace"
-        };
-        */
-
-        // Inicializar Firebase
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
 
-        // Verificar se já está logado
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                console.log("Usuário já logado, redirecionando...");
-                window.location.href = 'principal.html';
+        function createParticles() {
+            for (let i = 0; i < 20; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 8 + 's';
+                particle.style.animationDuration = (Math.random() * 4 + 6) + 's';
+                document.body.appendChild(particle);
             }
-        });
+        }
+        createParticles();
 
-        // Login
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
 
+            if (!email || !password) {
+                showError('Preencha todos os campos!');
+                return;
+            }
+
             try {
-                await signInWithEmailAndPassword(auth, email, password);
-                showSuccess('Login realizado com sucesso!');
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                showSuccess('✅ Login realizado com sucesso! Redirecionando...');
+                
                 setTimeout(() => {
                     window.location.href = 'principal.html';
-                }, 1000);
+                }, 2000);
+                
+                document.getElementById('email').value = '';
+                document.getElementById('password').value = '';
+                
             } catch (error) {
-                showError('Erro ao fazer login: ' + error.message);
+                console.error('Erro no login:', error);
+                switch (error.code) {
+                    case 'auth/user-not-found':
+                        showNoAccountMessage(email);
+                        break;
+                    case 'auth/wrong-password':
+                    case 'auth/invalid-credential':
+                        showError('❌ Senha incorreta ou não é cadastrado! Tente novamente ou cadastre-se.');
+                        break;
+                    case 'auth/invalid-email':
+                        showError('❌ Email inválido!');
+                        break;
+                    case 'auth/too-many-requests':
+                        showError('❌ Muitas tentativas falhas. Aguarde um momento.');
+                        break;
+                    case 'auth/network-request-failed':
+                        showError('❌ Erro de conexão. Verifique sua internet.');
+                        break;
+                    default:
+                        showError('❌ Erro ao fazer login: ' + error.message);
+                }
             }
         });
 
-        // Cadastrar
         window.cadastrar = async () => {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
 
             if (!email || !password) {
-                showError('Preencha email e senha para criar uma conta!');
+                showError('❌ Preencha email e senha para criar uma conta!');
+                return;
+            }
+
+            if (password.length < 6) {
+                showError('❌ A senha deve ter pelo menos 6 caracteres!');
                 return;
             }
 
             try {
-                await createUserWithEmailAndPassword(auth, email, password);
-                showSuccess('Conta criada com sucesso!');
-                setTimeout(() => {
-                    window.location.href = 'principal.html';
-                }, 1000);
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                showSuccess('✅ Conta criada com sucesso! Agora faça login com seu email e senha.');
+                document.getElementById('email').value = email;
+                document.getElementById('password').value = '';
+                document.getElementById('password').focus();
+                
             } catch (error) {
-                showError('Erro ao criar conta: ' + error.message);
+                console.error('Erro ao criar conta:', error);
+                switch (error.code) {
+                    case 'auth/email-already-in-use':
+                        showError('❌ Este email já está cadastrado! Faça login.');
+                        break;
+                    case 'auth/invalid-email':
+                        showError('❌ Email inválido!');
+                        break;
+                    case 'auth/weak-password':
+                        showError('❌ Senha muito fraca! Use pelo menos 6 caracteres.');
+                        break;
+                    default:
+                        showError('❌ Erro ao criar conta: ' + error.message);
+                }
             }
         };
 
@@ -286,6 +496,10 @@
             const errorDiv = document.getElementById('errorMessage');
             errorDiv.textContent = message;
             errorDiv.style.display = 'block';
+            document.getElementById('noAccountMessage').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'none';
+            document.getElementById('infoMessage').style.display = 'none';
+            
             setTimeout(() => {
                 errorDiv.style.display = 'none';
             }, 5000);
@@ -295,9 +509,27 @@
             const successDiv = document.getElementById('successMessage');
             successDiv.textContent = message;
             successDiv.style.display = 'block';
+            document.getElementById('noAccountMessage').style.display = 'none';
+            document.getElementById('errorMessage').style.display = 'none';
+            document.getElementById('infoMessage').style.display = 'none';
+            
             setTimeout(() => {
                 successDiv.style.display = 'none';
-            }, 3000);
+            }, 5000);
+        }
+
+        function showNoAccountMessage(email) {
+            const noAccountDiv = document.getElementById('noAccountMessage');
+            noAccountDiv.textContent = `❌ Você ainda não tem conta com o email: ${email}. Clique em "Criar Conta" para se cadastrar.`;
+            noAccountDiv.style.display = 'block';
+            
+            document.getElementById('errorMessage').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'none';
+            document.getElementById('infoMessage').style.display = 'none';
+            
+            setTimeout(() => {
+                noAccountDiv.style.display = 'none';
+            }, 8000);
         }
     </script>
 </body>
